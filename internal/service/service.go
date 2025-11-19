@@ -1,0 +1,23 @@
+package service
+
+import (
+	"context"
+
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+)
+
+type UserService interface {
+	SetIsActive(ctx context.Context, userID string, isActive bool) (models.User, error)
+	GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error)
+}
+
+type PullRequestService interface {
+	CreatePullRequest(ctx context.Context, pr models.PullRequest) (models.PullRequest, error)
+	MergePullRequest(ctx context.Context, prID string) (models.PullRequest, error)
+	ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (models.PullRequest, error)
+}
+
+type TeamService interface {
+	CreateTeam(ctx context.Context, team models.Team) (models.Team, error)
+	GetTeam(ctx context.Context, teamName string) (models.Team, error)
+}
