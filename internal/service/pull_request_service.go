@@ -2,15 +2,16 @@ package service
 
 import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
 
 type PullRequestService struct {
-	// ...
+	repository *repository.Repository
 }
 
-func NewPullRequestService() PullRequest {
+func NewPullRequestService(repository *repository.Repository) PullRequest {
 	return &PullRequestService{
-		// ...
+		repository: repository,
 	}
 }
 
