@@ -8,12 +8,22 @@ import (
 func (h *Handler) setIsActive(c *gin.Context) {
 	var req dto.SetUserIsActiveRequest
 
+	if req.UserID == "" {
+		err := InvalidRequest("user_id")
+		c.JSON(400, err)
+		return
+	}
+
 	if err := c.BindJSON(&req); err != nil {
+		err := InvalidRequest("")
+		c.JSON(400, err)
 		return
 	}
 
 	user, err := h.services.User.SetIsActive(req.UserID, req.IsActive)
 	if err != nil {
+		err := NotFound("User")
+		c.JSON(404, err)
 		return
 	}
 
@@ -27,11 +37,15 @@ func (h *Handler) setIsActive(c *gin.Context) {
 func (h *Handler) getReview(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
+		err := InvalidRequest("user_id")
+		c.JSON(400, err)
 		return
 	}
 
 	userPR, err := h.services.User.GetReview(userID)
 	if err != nil {
+		err := NotFound("User")
+		c.JSON(404, err)
 		return
 	}
 
