@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
 
 type User interface {
@@ -28,7 +29,7 @@ type Service struct {
 	Team
 }
 
-func NewService() *Service {
+func NewService(repo *repository.Repository) *Service {
 	return &Service{
 		User:        NewUserService(),
 		PullRequest: NewPullRequestService(),

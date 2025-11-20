@@ -30,7 +30,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		team.POST("/get_team", h.getTeam)
 	}
 
-	pullRequest := router.Group("/pull_request")
+	pullRequest := router.Group("/pullRequest")
 	{
 		pullRequest.POST("/create", h.createPullRequest)
 		pullRequest.POST("/merge", h.mergePullRequest)
