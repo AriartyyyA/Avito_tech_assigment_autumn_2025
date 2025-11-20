@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"context"
-
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 )
 
@@ -16,10 +14,10 @@ func NewTeamRepository() Team {
 	}
 }
 
-func (t *TeamRepository) CreateTeam(ctx context.Context, team models.Team) (models.Team, error) {
+func (t *TeamRepository) AddTeam(team models.Team) (models.Team, error) {
 	panic("unimplemented")
 }
 
-func (t *TeamRepository) GetTeam(ctx context.Context, teamName string) (models.Team, error) {
+func (t *TeamRepository) GetTeam(teamName string) (models.Team, error) {
 	panic("unimplemented")
 }
