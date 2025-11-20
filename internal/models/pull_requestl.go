@@ -44,17 +44,11 @@ func NewPullRequest(
 	id string,
 	name string,
 	authorID string,
-	status PullRequestStatus,
-	reviewers []string,
-	createdAt *time.Time,
-	mergeAt *time.Time,
-) *PullRequest {
-	return &PullRequest{
-		PullRequestID:     id,
-		PullRequestName:   name,
-		AuthorID:          authorID,
-		Status:            status,
-		AssignedReviewers: reviewers,
-		CreatedAt:         createdAt,
+) PullRequest {
+	return PullRequest{
+		PullRequestID:   id,
+		PullRequestName: name,
+		AuthorID:        authorID,
+		Status:          PullRequestStatusOpen,
 	}
 }

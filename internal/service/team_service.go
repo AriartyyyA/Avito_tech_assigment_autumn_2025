@@ -16,8 +16,8 @@ func NewTeamService(repository *repository.Repository) Team {
 }
 
 // CreateTeam implements TeamInterface.
-func (t *TeamService) AddTeam(team models.Team) (models.Team, error) {
-	team, err := t.repository.Team.AddTeam(team)
+func (s *TeamService) AddTeam(team models.Team) (models.Team, error) {
+	team, err := s.repository.Team.AddTeam(team)
 	if err != nil {
 		return models.Team{}, err
 	}
@@ -26,8 +26,8 @@ func (t *TeamService) AddTeam(team models.Team) (models.Team, error) {
 }
 
 // GetTeam implements TeamInterface.
-func (t *TeamService) GetTeam(teamName string) (models.Team, error) {
-	team, err := t.repository.Team.GetTeam(teamName)
+func (s *TeamService) GetTeam(teamName string) (models.Team, error) {
+	team, err := s.repository.Team.GetTeam(teamName)
 	if err != nil {
 		return models.Team{}, err
 	}

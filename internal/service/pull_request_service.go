@@ -16,16 +16,34 @@ func NewPullRequestService(repository *repository.Repository) PullRequest {
 }
 
 // CreatePullRequest implements PullRequestInterface.
-func (p *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (models.PullRequest, error) {
-	panic("unimplemented")
+func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (models.PullRequest, error) {
+	pullRequest := models.NewPullRequest(pullRequestID, pullRequestName, authorID)
+
+	pullRequest, err := s.repository.PullRequest.CreatePullRequest(pullRequest)
+	if err != nil {
+		return models.PullRequest{}, err
+	}
+
+	return pullRequest, nil
 }
 
 // MergePullRequest implements PullRequestInterface.
-func (p *PullRequestService) MergePullRequest(prID string) (models.PullRequest, error) {
-	panic("unimplemented")
+func (s *PullRequestService) MergePullRequest(prID string) (models.PullRequest, error) {
+	pullRequest, err := s.repository.PullRequest.MergePullRequest(prID)
+	if err != nil {
+		return models.PullRequest{}, err
+	}
+
+	return pullRequest, nil
+
 }
 
 // ReassignPullRequest implements PullRequestInterface.
-func (p *PullRequestService) ReassignPullRequest(prID string, oldReviewerID string) (models.PullRequest, error) {
-	panic("unimplemented")
+func (s *PullRequestService) ReassignPullRequest(prID string, oldReviewerID string) (models.PullRequest, error) {
+	pullRequest, err := s.repository.PullRequest.ReassignPullRequest(prID, oldReviewerID)
+	if err != nil {
+		return models.PullRequest{}, err
+	}
+
+	return pullRequest, nil
 }

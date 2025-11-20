@@ -16,11 +16,19 @@ func NewUserService(repository *repository.Repository) User {
 }
 
 func (s *UserService) SetIsActive(userID string, isActive bool) (models.User, error) {
-	// ...
-	return models.User{}, nil
+	user, err := s.repository.User.SetIsActive(userID, isActive)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (s *UserService) GetReview(userID string) ([]models.PullRequestShort, error) {
-	// ...
-	return nil, nil
+	userPR, err := s.repository.User.GetReview(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return userPR, nil
 }
