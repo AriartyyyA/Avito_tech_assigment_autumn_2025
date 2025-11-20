@@ -21,3 +21,17 @@ type Team interface {
 	CreateTeam(ctx context.Context, team models.Team) (models.Team, error)
 	GetTeam(ctx context.Context, teamName string) (models.Team, error)
 }
+
+type Repository struct {
+	User
+	PullRequest
+	Team
+}
+
+func NewRepository() *Repository {
+	return &Repository{
+		User:        NewUserRepository(),
+		PullRequest: NewPullRequestRepository(),
+		Team:        NewTeamRepository(),
+	}
+}
