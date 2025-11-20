@@ -1,26 +1,29 @@
 package transport
 
 import (
-	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
+	"log"
+
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) addTeam(c *gin.Context) {
-	var req dto.AddTeamDTO
-
-	if req.Team.TeamName == "" {
-		err := InvalidRequest("team_name")
-		c.JSON(400, err)
-		return
-	}
+	var req models.Team
 
 	if err := c.BindJSON(&req); err != nil {
+		log.Println("Error in handler")
 		err := InvalidRequest("")
 		c.JSON(400, err)
 		return
 	}
 
-	team, err := h.services.Team.AddTeam(req.Team)
+	if req.TeamName == "" {
+		err := InvalidRequest("team_name")
+		c.JSON(400, err)
+		return
+	}
+
+	team, err := h.services.Team.AddTeam(c.Request.Context(), &req)
 	if err != nil {
 		err := TeamExists()
 		c.JSON(400, err)
@@ -31,14 +34,14 @@ func (h *Handler) addTeam(c *gin.Context) {
 }
 
 func (h *Handler) getTeam(c *gin.Context) {
-	teamName := c.Query("team_name")
+	teamName := c.Param("team_name")
 	if teamName == "" {
 		err := InvalidRequest("team_name")
 		c.JSON(400, err)
 		return
 	}
 
-	team, err := h.services.Team.GetTeam(teamName)
+	team, err := h.services.Team.GetTeam(c.Request.Context(), teamName)
 	if err != nil {
 		err := NotFound("Team")
 		c.JSON(404, err)

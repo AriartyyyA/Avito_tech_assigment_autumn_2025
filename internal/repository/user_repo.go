@@ -2,15 +2,16 @@ package repository
 
 import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserRepository struct {
-	//
+	db *pgxpool.Pool
 }
 
-func NewUserRepository() User {
+func NewUserRepository(db *pgxpool.Pool) User {
 	return &UserRepository{
-		//
+		db: db,
 	}
 }
 

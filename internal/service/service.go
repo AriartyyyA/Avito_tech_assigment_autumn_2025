@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
@@ -17,8 +19,8 @@ type PullRequest interface {
 }
 
 type Team interface {
-	AddTeam(team models.Team) (models.Team, error)
-	GetTeam(teamName string) (models.Team, error)
+	AddTeam(ctx context.Context, team *models.Team) (*models.Team, error)
+	GetTeam(ctx context.Context, teamName string) (*models.Team, error)
 }
 
 type Service struct {

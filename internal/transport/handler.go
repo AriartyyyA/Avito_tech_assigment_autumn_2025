@@ -27,7 +27,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	team := router.Group("/team")
 	{
 		team.POST("/add", h.addTeam)
-		team.POST("/get_team/team_name", h.getTeam)
+		team.GET("/get_team/:team_name", h.getTeam)
 	}
 
 	pullRequest := router.Group("/pullRequest")

@@ -2,15 +2,16 @@ package repository
 
 import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PullRequestRepository struct {
-	//
+	db *pgxpool.Pool
 }
 
-func NewPullRequestRepository() PullRequest {
+func NewPullRequestRepository(db *pgxpool.Pool) PullRequest {
 	return &PullRequestRepository{
-		//
+		db: db,
 	}
 }
 

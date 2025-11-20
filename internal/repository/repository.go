@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type User interface {
@@ -16,8 +19,8 @@ type PullRequest interface {
 }
 
 type Team interface {
-	AddTeam(team models.Team) (models.Team, error)
-	GetTeam(teamName string) (models.Team, error)
+	AddTeam(ctx context.Context, team *models.Team) (*models.Team, error)
+	GetTeam(ctx context.Context, teamName string) (*models.Team, error)
 }
 
 type Repository struct {
@@ -26,10 +29,10 @@ type Repository struct {
 	Team
 }
 
-func NewRepository() *Repository {
+func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		User:        NewUserRepository(),
-		PullRequest: NewPullRequestRepository(),
-		Team:        NewTeamRepository(),
+		User:        NewUserRepository(db),
+		PullRequest: NewPullRequestRepository(db),
+		Team:        NewTeamRepository(db),
 	}
 }
