@@ -12,10 +12,10 @@ type UserRepository interface {
 	GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error)
 }
 
-type PullRequest interface {
-	CreatePullRequest(pr models.PullRequest) (models.PullRequest, error)
-	MergePullRequest(prID string) (models.PullRequest, error)
-	ReassignPullRequest(prID string, oldReviewerID string) (models.PullRequest, error)
+type PullRequestRepository interface {
+	CreatePullRequest(ctx context.Context, pr *models.PullRequest) (*models.PullRequest, error)
+	MergePullRequest(ctx context.Context, prID string) (*models.PullRequest, error)
+	ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (*models.PullRequest, error)
 }
 
 type Team interface {
@@ -25,14 +25,14 @@ type Team interface {
 
 type Repository struct {
 	UserRepository
-	PullRequest
+	PullRequestRepository
 	Team
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		UserRepository: NewUserRepository(db),
-		PullRequest:    NewPullRequestRepository(db),
-		Team:           NewTeamRepository(db),
+		UserRepository:        NewUserRepository(db),
+		PullRequestRepository: NewPullRequestRepository(db),
+		Team:                  NewTeamRepository(db),
 	}
 }

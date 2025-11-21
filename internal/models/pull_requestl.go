@@ -15,8 +15,9 @@ type PullRequest struct {
 	AuthorID          string            `json:"author_id"`
 	Status            PullRequestStatus `json:"status"`
 	AssignedReviewers []string          `json:"assigned_reviewers"`
-	CreatedAt         *time.Time        `json:"created_at"`
-	MergedAt          *time.Time        `json:"merged_at"`
+
+	MergedAt      *time.Time `json:"-"`
+	NewReviewerID string     `json:"-"`
 }
 
 type PullRequestShort struct {
@@ -44,8 +45,8 @@ func NewPullRequest(
 	id string,
 	name string,
 	authorID string,
-) PullRequest {
-	return PullRequest{
+) *PullRequest {
+	return &PullRequest{
 		PullRequestID:   id,
 		PullRequestName: name,
 		AuthorID:        authorID,

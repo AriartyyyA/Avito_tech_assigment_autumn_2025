@@ -35,7 +35,8 @@ func (h *Handler) setIsActive(c *gin.Context) {
 }
 
 func (h *Handler) getReview(c *gin.Context) {
-	userID := c.Query("user_id")
+	userID := c.Param("user_id")
+
 	if userID == "" {
 		err := InvalidRequest("user_id")
 		c.JSON(400, err)

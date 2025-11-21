@@ -20,14 +20,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	users := router.Group("/users")
 	{
-		users.POST("/set_is_active", h.setIsActive)
-		users.GET("/get_review/:id", h.getReview)
+		users.POST("/setIsActive", h.setIsActive)
+		users.GET("/getReview/:user_id", h.getReview)
 	}
 
 	team := router.Group("/team")
 	{
 		team.POST("/add", h.addTeam)
-		team.GET("/get_team/:team_name", h.getTeam)
+		team.GET("/get/:team_name", h.getTeam)
 	}
 
 	pullRequest := router.Group("/pullRequest")

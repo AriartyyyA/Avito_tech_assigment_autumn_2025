@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
@@ -16,22 +18,22 @@ func NewPullRequestService(repository *repository.Repository) PullRequest {
 }
 
 // CreatePullRequest implements PullRequestInterface.
-func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (models.PullRequest, error) {
+func (s *PullRequestService) CreatePullRequest(ctx context.Context, pullRequestID, pullRequestName, authorID string) (*models.PullRequest, error) {
 	pullRequest := models.NewPullRequest(pullRequestID, pullRequestName, authorID)
 
-	pullRequest, err := s.repository.PullRequest.CreatePullRequest(pullRequest)
+	pullRequest, err := s.repository.PullRequestRepository.CreatePullRequest(ctx, pullRequest)
 	if err != nil {
-		return models.PullRequest{}, err
+		return nil, err
 	}
 
 	return pullRequest, nil
 }
 
 // MergePullRequest implements PullRequestInterface.
-func (s *PullRequestService) MergePullRequest(prID string) (models.PullRequest, error) {
-	pullRequest, err := s.repository.PullRequest.MergePullRequest(prID)
+func (s *PullRequestService) MergePullRequest(ctx context.Context, prID string) (*models.PullRequest, error) {
+	pullRequest, err := s.repository.PullRequestRepository.MergePullRequest(ctx, prID)
 	if err != nil {
-		return models.PullRequest{}, err
+		return nil, err
 	}
 
 	return pullRequest, nil
@@ -39,10 +41,10 @@ func (s *PullRequestService) MergePullRequest(prID string) (models.PullRequest, 
 }
 
 // ReassignPullRequest implements PullRequestInterface.
-func (s *PullRequestService) ReassignPullRequest(prID string, oldReviewerID string) (models.PullRequest, error) {
-	pullRequest, err := s.repository.PullRequest.ReassignPullRequest(prID, oldReviewerID)
+func (s *PullRequestService) ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (*models.PullRequest, error) {
+	pullRequest, err := s.repository.PullRequestRepository.ReassignPullRequest(ctx, prID, oldReviewerID)
 	if err != nil {
-		return models.PullRequest{}, err
+		return nil, err
 	}
 
 	return pullRequest, nil

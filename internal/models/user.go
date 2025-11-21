@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
+	ID       string `json:"user_id"`
+	Name     string `json:"username"`
 	TeamName string `json:"team_name"`
 	IsActive bool   `json:"is_active"`
 }

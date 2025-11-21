@@ -1,9 +1,11 @@
 package transport
 
 import (
+	"errors"
 	"log"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,12 +27,22 @@ func (h *Handler) addTeam(c *gin.Context) {
 
 	team, err := h.services.Team.AddTeam(c.Request.Context(), &req)
 	if err != nil {
-		err := TeamExists()
+		if errors.Is(err, models.ErrorCodeTeamExists) {
+			err := TeamExists()
+			c.JSON(400, err)
+			return
+		}
+
+		err := InvalidRequest("")
 		c.JSON(400, err)
 		return
 	}
 
-	c.JSON(200, team)
+	resp := dto.AddTeamDTO{
+		Team: team,
+	}
+
+	c.JSON(200, resp)
 }
 
 func (h *Handler) getTeam(c *gin.Context) {
