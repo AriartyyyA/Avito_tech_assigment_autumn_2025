@@ -11,7 +11,7 @@ const (
 	ErrorCodeNotFound       ErrorCode = "NOT_FOUND"
 	ErrorCodeInvalidRequest ErrorCode = "INVALID_REQUEST"
 	ErrorCodePRNotFound     ErrorCode = "PR_NOT_FOUND"
-	ErrorCodeAuthorNotFound ErrorCode = "AUTHOR_NOT_FOUND"
+	ErrorCodeUserNotFound   ErrorCode = "USER_NOT_FOUND"
 	ErrorCodeTeamNotFound   ErrorCode = "TEAM_NOT_FOUND"
 )
 

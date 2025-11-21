@@ -37,7 +37,7 @@ func TeamExists() models.ErrorResponse {
 	return respErr
 }
 func NotFound(item string) models.ErrorResponse {
-	errStr := fmt.Sprintf("%s not found")
+	errStr := fmt.Sprintf("%s not found", item)
 
 	error := models.NewErrorDetail(
 		models.ErrorCodeNotFound,

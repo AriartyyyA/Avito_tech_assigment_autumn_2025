@@ -7,9 +7,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type User interface {
-	SetIsActive(userID string, isActive bool) (models.User, error)
-	GetReview(userID string) ([]models.PullRequestShort, error)
+type UserRepository interface {
+	SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error)
+	GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error)
 }
 
 type PullRequest interface {
@@ -24,15 +24,15 @@ type Team interface {
 }
 
 type Repository struct {
-	User
+	UserRepository
 	PullRequest
 	Team
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
-		User:        NewUserRepository(db),
-		PullRequest: NewPullRequestRepository(db),
-		Team:        NewTeamRepository(db),
+		UserRepository: NewUserRepository(db),
+		PullRequest:    NewPullRequestRepository(db),
+		Team:           NewTeamRepository(db),
 	}
 }

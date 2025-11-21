@@ -8,8 +8,8 @@ import (
 )
 
 type User interface {
-	SetIsActive(userID string, isActive bool) (models.User, error)
-	GetReview(userID string) ([]models.PullRequestShort, error)
+	SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error)
+	GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error)
 }
 
 type PullRequest interface {

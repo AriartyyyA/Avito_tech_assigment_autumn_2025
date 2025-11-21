@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
@@ -15,17 +17,17 @@ func NewUserService(repository *repository.Repository) User {
 	}
 }
 
-func (s *UserService) SetIsActive(userID string, isActive bool) (models.User, error) {
-	user, err := s.repository.User.SetIsActive(userID, isActive)
+func (s *UserService) SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error) {
+	user, err := s.repository.UserRepository.SetIsActive(ctx, userID, isActive)
 	if err != nil {
-		return models.User{}, err
+		return &models.User{}, err
 	}
 
 	return user, nil
 }
 
-func (s *UserService) GetReview(userID string) ([]models.PullRequestShort, error) {
-	userPR, err := s.repository.User.GetReview(userID)
+func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
+	userPR, err := s.repository.UserRepository.GetReview(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

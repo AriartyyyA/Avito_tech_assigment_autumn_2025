@@ -41,7 +41,7 @@ func (h *Handler) createPullRequest(c *gin.Context) {
 		err := NotFound("Team")
 		c.JSON(404, err)
 		return
-	case errors.Is(err, models.ErrorCodeAuthorNotFound):
+	case errors.Is(err, models.ErrorCodeUserNotFound):
 		err := NotFound("Author")
 		c.JSON(404, err)
 		return
@@ -114,7 +114,7 @@ func (h *Handler) reassignPullRequest(c *gin.Context) {
 		err := NotFound("PullRequest")
 		c.JSON(404, err)
 		return
-	case errors.Is(err, models.ErrorCodeAuthorNotFound):
+	case errors.Is(err, models.ErrorCodeUserNotFound):
 		err := NotFound("Author")
 		c.JSON(404, err)
 		return
