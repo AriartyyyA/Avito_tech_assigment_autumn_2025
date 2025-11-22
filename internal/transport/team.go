@@ -100,3 +100,43 @@ func (h *Handler) getTeamPullRequests(c *gin.Context) {
 
 	c.JSON(200, resp)
 }
+
+func (h *Handler) deactivateTeamUsers(c *gin.Context) {
+	var req dto.DeactivateTeamUsersRequest
+
+	if err := c.BindJSON(&req); err != nil {
+		err := InvalidRequest("")
+		c.JSON(400, err)
+		return
+	}
+
+	if req.TeamName == "" {
+		err := InvalidRequest("team_name")
+		c.JSON(400, err)
+		return
+	}
+
+	result, err := h.services.Team.DeactivateTeam(c.Request.Context(), req.TeamName)
+	if err != nil {
+		if errors.Is(err, models.ErrorCodeTeamNotFound) {
+			err := NotFound()
+			c.JSON(404, err)
+			return
+		}
+
+		err := InternalError()
+		c.JSON(500, err)
+		return
+	}
+
+	resp := dto.DeactivateTeamUsersResponse{
+		TeamName:                result.TeamName,
+		DeactivatedUsers:        result.DeactivatedUsers,
+		OpenPRCount:             result.OpenPRCount,
+		SuccessfulReassignments: result.SuccessfulReassignments,
+		FailedReassignments:     result.FailedReassignments,
+	}
+
+	c.JSON(200, resp)
+
+}

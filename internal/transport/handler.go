@@ -30,6 +30,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		team.POST("/add", h.addTeam)
 		team.GET("/get", h.getTeam)
 		team.GET("/pullRequests", h.getTeamPullRequests)
+		team.POST("deactivateUsers", h.deactivateTeamUsers)
 	}
 
 	pullRequest := router.Group("/pullRequest")

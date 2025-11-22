@@ -12,3 +12,15 @@ type TeamPRsResponse struct {
 	PullRequest []models.PullRequestShort `json:"pull_request"`
 	PRcount     int                       `json:"pr_count"`
 }
+
+type DeactivateTeamUsersRequest struct {
+	TeamName string `json:"team_name"`
+}
+
+type DeactivateTeamUsersResponse struct {
+	TeamName                string   `json:"team_name"`
+	DeactivatedUsers        []string `json:"deactivated_users"`
+	OpenPRCount             int      `json:"open_pr_count"`
+	SuccessfulReassignments int      `json:"successful_reassignments"`
+	FailedReassignments     int      `json:"failed_reassignments"`
+}

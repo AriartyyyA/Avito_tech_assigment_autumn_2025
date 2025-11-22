@@ -23,6 +23,7 @@ type Team interface {
 	AddTeam(ctx context.Context, team *models.Team) (*models.Team, error)
 	GetTeam(ctx context.Context, teamName string) (*models.Team, error)
 	GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error)
+	DeactivateTeam(ctx context.Context, teamName string) (*models.TeamDeactivate, error)
 }
 
 type Service struct {

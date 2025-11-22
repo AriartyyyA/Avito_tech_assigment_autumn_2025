@@ -11,6 +11,14 @@ type TeamMember struct {
 	IsActive bool   `json:"is_active"`
 }
 
+type TeamDeactivate struct {
+	TeamName                string   `json:"team_name"`
+	DeactivatedUsers        []string `json:"deactivated_users"`
+	OpenPRCount             int      `json:"open_pr_count"`
+	SuccessfulReassignments int      `json:"successful_reassignments"`
+	FailedReassignments     int      `json:"failed_reassignments"`
+}
+
 func NewTeam(name string, members []TeamMember) *Team {
 	return &Team{
 		TeamName: name,
