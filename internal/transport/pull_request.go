@@ -36,19 +36,21 @@ func (h *Handler) createPullRequest(c *gin.Context) {
 	}
 
 	pullRequest, err := h.services.PullRequest.CreatePullRequest(c.Request.Context(), req.PullRequestID, req.PullRequestName, req.AuthorID)
-	switch {
-	// case errors.Is(err, models.ErrorCodeTeamNotFound):
-	// 	err := NotFound("Team")
-	// 	c.JSON(404, err)
-	// 	return
-	case errors.Is(err, models.ErrorCodeUserNotFound):
-		err := NotFound()
-		c.JSON(404, err)
-		return
-	case errors.Is(err, models.ErrorCodePRExists):
-		err := PRExists()
-		c.JSON(409, err)
-		return
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrorCodeUserNotFound):
+			err := NotFound()
+			c.JSON(404, err)
+			return
+		case errors.Is(err, models.ErrorCodePRExists):
+			err := PRExists()
+			c.JSON(409, err)
+			return
+		default:
+			err := InternalError()
+			c.JSON(500, err)
+			return
+		}
 	}
 
 	resp := dto.PRResponseDto{
@@ -75,8 +77,14 @@ func (h *Handler) mergePullRequest(c *gin.Context) {
 
 	pullRequest, err := h.services.PullRequest.MergePullRequest(c.Request.Context(), req.PullRequestID)
 	if err != nil {
-		err := NotFound()
-		c.JSON(404, err)
+		if errors.Is(err, models.ErrorCodePRNotFound) {
+			err := NotFound()
+			c.JSON(404, err)
+			return
+		}
+
+		err := InternalError()
+		c.JSON(500, err)
 		return
 	}
 
@@ -133,10 +141,10 @@ func (h *Handler) reassignPullRequest(c *gin.Context) {
 			c.JSON(409, err)
 			return
 		default:
-			err := InvalidRequest("")
+			err := InternalError()
 			c.JSON(500, err)
+			return
 		}
-		return
 	}
 
 	resp := dto.ReassignPRResponseDto{
