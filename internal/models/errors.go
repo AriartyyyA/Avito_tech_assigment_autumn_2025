@@ -14,6 +14,7 @@ const (
 	ErrorCodePRNotFound     ErrorCode = "PR_NOT_FOUND"
 	ErrorCodeUserNotFound   ErrorCode = "USER_NOT_FOUND"
 	ErrorCodeTeamNotFound   ErrorCode = "TEAM_NOT_FOUND"
+	ErrorCodeInternal       ErrorCode = "INTERNAL"
 )
 
 func (e ErrorCode) Error() string {

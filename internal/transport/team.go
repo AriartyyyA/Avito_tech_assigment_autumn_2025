@@ -33,8 +33,8 @@ func (h *Handler) addTeam(c *gin.Context) {
 			return
 		}
 
-		err := InvalidRequest("")
-		c.JSON(400, err)
+		err := InternalError()
+		c.JSON(500, err)
 		return
 	}
 
@@ -42,11 +42,11 @@ func (h *Handler) addTeam(c *gin.Context) {
 		Team: team,
 	}
 
-	c.JSON(200, resp)
+	c.JSON(201, resp)
 }
 
 func (h *Handler) getTeam(c *gin.Context) {
-	teamName := c.Param("team_name")
+	teamName := c.Query("team_name")
 	if teamName == "" {
 		err := InvalidRequest("team_name")
 		c.JSON(400, err)
@@ -55,8 +55,14 @@ func (h *Handler) getTeam(c *gin.Context) {
 
 	team, err := h.services.Team.GetTeam(c.Request.Context(), teamName)
 	if err != nil {
-		err := NotFound("Team")
-		c.JSON(404, err)
+		if errors.Is(err, models.ErrorCodeTeamNotFound) {
+			err := NotFound()
+			c.JSON(404, err)
+			return
+		}
+
+		err := NotFound()
+		c.JSON(500, err)
 		return
 	}
 

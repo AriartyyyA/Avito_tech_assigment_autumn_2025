@@ -21,13 +21,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	users := router.Group("/users")
 	{
 		users.POST("/setIsActive", h.setIsActive)
-		users.GET("/getReview/:user_id", h.getReview)
+		users.GET("/getReview", h.getReview)
 	}
 
 	team := router.Group("/team")
 	{
 		team.POST("/add", h.addTeam)
-		team.GET("/get/:team_name", h.getTeam)
+		team.GET("/get", h.getTeam)
 	}
 
 	pullRequest := router.Group("/pullRequest")

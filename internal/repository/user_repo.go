@@ -21,7 +21,18 @@ func NewUserRepository(db *pgxpool.Pool) UserRepository {
 }
 
 func (r *userRepository) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
-	const query = `SELECT
+	const userExistsQuery = `SELECT 1 FROM users WHERE user_id = $1`
+
+	var u int
+	if err := r.db.QueryRow(ctx, userExistsQuery, userID).Scan(&u); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.ErrorCodeUserNotFound
+		}
+
+		return nil, fmt.Errorf("check user exists: %w", err)
+	}
+
+	const selectUserPR = `SELECT
     pr.pull_request_id,
     pr.pull_request_name,
     pr.author_id,
@@ -32,9 +43,9 @@ JOIN pull_request_reviewers AS prr
 WHERE prr.user_id = $1
 ORDER BY pr.created_at DESC, pr.pull_request_id`
 
-	rows, err := r.db.Query(ctx, query, userID)
+	rows, err := r.db.Query(ctx, selectUserPR, userID)
 	if err != nil {
-		return nil, fmt.Errorf("get review: %w", err)
+		return nil, fmt.Errorf("scan review: %w", err)
 	}
 	defer rows.Close()
 

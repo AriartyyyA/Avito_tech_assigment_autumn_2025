@@ -36,7 +36,7 @@ func TeamExists() models.ErrorResponse {
 
 	return respErr
 }
-func NotFound(item string) models.ErrorResponse {
+func NotFound() models.ErrorResponse {
 
 	error := models.NewErrorDetail(
 		models.ErrorCodeNotFound,
@@ -92,6 +92,19 @@ func NoCandidate() models.ErrorResponse {
 	error := models.NewErrorDetail(
 		models.ErrorCodeNoCandidate,
 		"no active replacement candidate in team",
+	)
+
+	respErr := models.ErrorResponse{
+		Error: error,
+	}
+
+	return respErr
+}
+
+func InternalError() models.ErrorResponse {
+	error := models.NewErrorDetail(
+		models.ErrorCodeInternal,
+		"internal error",
 	)
 
 	respErr := models.ErrorResponse{

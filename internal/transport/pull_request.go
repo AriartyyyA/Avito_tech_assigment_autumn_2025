@@ -42,7 +42,7 @@ func (h *Handler) createPullRequest(c *gin.Context) {
 	// 	c.JSON(404, err)
 	// 	return
 	case errors.Is(err, models.ErrorCodeUserNotFound):
-		err := NotFound("Author")
+		err := NotFound()
 		c.JSON(404, err)
 		return
 	case errors.Is(err, models.ErrorCodePRExists):
@@ -75,7 +75,7 @@ func (h *Handler) mergePullRequest(c *gin.Context) {
 
 	pullRequest, err := h.services.PullRequest.MergePullRequest(c.Request.Context(), req.PullRequestID)
 	if err != nil {
-		err := NotFound("PullRequest")
+		err := NotFound()
 		c.JSON(404, err)
 		return
 	}
@@ -113,11 +113,11 @@ func (h *Handler) reassignPullRequest(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrorCodePRNotFound):
-			err := NotFound("PullRequest")
+			err := NotFound()
 			c.JSON(404, err)
 			return
 		case errors.Is(err, models.ErrorCodeUserNotFound):
-			err := NotFound("Author")
+			err := NotFound()
 			c.JSON(404, err)
 			return
 		case errors.Is(err, models.ErrorCodePRMerged):

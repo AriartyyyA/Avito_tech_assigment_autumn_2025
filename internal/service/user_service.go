@@ -20,7 +20,7 @@ func NewUserService(repository *repository.Repository) User {
 func (s *UserService) SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error) {
 	user, err := s.repository.UserRepository.SetIsActive(ctx, userID, isActive)
 	if err != nil {
-		return &models.User{}, err
+		return nil, err
 	}
 
 	return user, nil
