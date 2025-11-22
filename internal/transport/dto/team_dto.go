@@ -10,4 +10,5 @@ type AddTeamDTO struct {
 type TeamPRsResponse struct {
 	TeamName    string                    `json:"team_name"`
 	PullRequest []models.PullRequestShort `json:"pull_request"`
+	PRcount     int                       `json:"pr_count"`
 }

@@ -95,6 +95,7 @@ func (h *Handler) getTeamPullRequests(c *gin.Context) {
 	resp := dto.TeamPRsResponse{
 		TeamName:    teamName,
 		PullRequest: prs,
+		PRcount:     len(prs),
 	}
 
 	c.JSON(200, resp)
