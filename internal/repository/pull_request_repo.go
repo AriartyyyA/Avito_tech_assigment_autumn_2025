@@ -118,8 +118,8 @@ VALUES ($1, $2)
 	return createdPR, nil
 }
 
-func (r *pullRequestRepository) ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (*models.PullRequest, error) {
-	if prID == "" || oldReviewerID == "" {
+func (r *pullRequestRepository) ReassignPullRequest(ctx context.Context, prID string, OldUserID string) (*models.PullRequest, error) {
+	if prID == "" || OldUserID == "" {
 		return nil, fmt.Errorf("prID and oldReviewerID are Required")
 	}
 
@@ -162,7 +162,7 @@ WHERE pull_request_id = $1 AND user_id = $2
 `
 	var assignedID string
 
-	if err := tx.QueryRow(ctx, checkReviewerQuery, prID, oldReviewerID).
+	if err := tx.QueryRow(ctx, checkReviewerQuery, prID, OldUserID).
 		Scan(&assignedID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, models.ErrorCodeNotAssigned
@@ -202,7 +202,7 @@ WHERE pull_request_id = $1
 	}
 
 	for _, uID := range currentReviewers {
-		if uID != oldReviewerID {
+		if uID != OldUserID {
 			otherReviewersID = uID
 			break
 		}
@@ -216,10 +216,10 @@ WHERE user_id = $1
 
 	var reviewerTeam string
 
-	if err = tx.QueryRow(ctx, reviewerTeamQuery, oldReviewerID).
+	if err = tx.QueryRow(ctx, reviewerTeamQuery, OldUserID).
 		Scan(&reviewerTeam); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("old reviewer %q not found", oldReviewerID)
+			return nil, fmt.Errorf("old reviewer %q not found", OldUserID)
 		}
 
 		return nil, fmt.Errorf("select reviewer team: %w", err)
@@ -234,7 +234,7 @@ WHERE team_name = $1
   AND user_id <> $3
 `
 
-	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, oldReviewerID, authorID)
+	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, OldUserID, authorID)
 	if err != nil {
 		return nil, fmt.Errorf("select replacement candidates: %w", err)
 	}
@@ -265,7 +265,7 @@ DELETE FROM pull_request_reviewers
 WHERE pull_request_id = $1 AND user_id = $2
 `
 
-	if _, err := tx.Exec(ctx, deleteOld, prID, oldReviewerID); err != nil {
+	if _, err := tx.Exec(ctx, deleteOld, prID, OldUserID); err != nil {
 		return nil, fmt.Errorf("delete old reviewer: %w", err)
 	}
 

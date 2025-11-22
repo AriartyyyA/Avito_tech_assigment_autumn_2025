@@ -31,7 +31,7 @@ type MergePRResponseDto struct {
 // /pull_request/reassign
 type ReassignPRRequestDto struct {
 	PullRequestID string `json:"pull_request_id"`
-	OldUserID     string `json:"old_reviewer_id"`
+	OldUserID     string `json:"old_user_id"`
 }
 
 type ReassignPRResponseDto struct {

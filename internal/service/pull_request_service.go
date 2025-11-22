@@ -30,6 +30,6 @@ func (s *PullRequestService) MergePullRequest(ctx context.Context, prID string) 
 }
 
 // ReassignPullRequest implements PullRequestInterface.
-func (s *PullRequestService) ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (*models.PullRequest, error) {
-	return s.repository.PullRequestRepository.ReassignPullRequest(ctx, prID, oldReviewerID)
+func (s *PullRequestService) ReassignPullRequest(ctx context.Context, prID string, OldUserID string) (*models.PullRequest, error) {
+	return s.repository.PullRequestRepository.ReassignPullRequest(ctx, prID, OldUserID)
 }

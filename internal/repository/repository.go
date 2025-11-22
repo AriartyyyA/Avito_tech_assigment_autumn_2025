@@ -16,7 +16,7 @@ type UserRepository interface {
 type PullRequestRepository interface {
 	CreatePullRequest(ctx context.Context, pr *models.PullRequest) (*models.PullRequest, error)
 	MergePullRequest(ctx context.Context, prID string) (*models.PullRequest, error)
-	ReassignPullRequest(ctx context.Context, prID string, oldReviewerID string) (*models.PullRequest, error)
+	ReassignPullRequest(ctx context.Context, prID string, OldUserID string) (*models.PullRequest, error)
 }
 
 type Team interface {
