@@ -2,6 +2,7 @@ package transport
 
 import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/service"
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,24 +21,24 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	users := router.Group("/users")
 	{
-		users.POST("/setIsActive", h.setIsActive)
-		users.GET("/getReview", h.getReview)
+		users.POST("/setIsActive", middleware.ValidateSetIsActiveRequest(), h.setIsActive)
+		users.GET("/getReview", middleware.ValidateQueryParams("user_id"), h.getReview)
 		users.GET("/userAssignments", h.getUserAssignmentsStats)
 	}
 
 	team := router.Group("/team")
 	{
-		team.POST("/add", h.addTeam)
-		team.GET("/get", h.getTeam)
-		team.GET("/pullRequests", h.getTeamPullRequests)
-		team.POST("deactivateUsers", h.deactivateTeamUsers)
+		team.POST("/add", middleware.ValidateAddTeamRequest(), h.addTeam)
+		team.GET("/get", middleware.ValidateQueryParams("team_name"), h.getTeam)
+		team.GET("/pullRequests", middleware.ValidateQueryParams("team_name"), h.getTeamPullRequests)
+		team.POST("/deactivateUsers", middleware.ValidateDeactivateTeamUsersRequest(), h.deactivateTeamUsers)
 	}
 
 	pullRequest := router.Group("/pullRequest")
 	{
-		pullRequest.POST("/create", h.createPullRequest)
-		pullRequest.POST("/merge", h.mergePullRequest)
-		pullRequest.POST("/reassign", h.reassignPullRequest)
+		pullRequest.POST("/create", middleware.ValidateCreatePRRequest(), h.createPullRequest)
+		pullRequest.POST("/merge", middleware.ValidateMergePRRequest(), h.mergePullRequest)
+		pullRequest.POST("/reassign", middleware.ValidateReassignPRRequest(), h.reassignPullRequest)
 	}
 
 	return router

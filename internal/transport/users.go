@@ -2,7 +2,6 @@ package transport
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
@@ -10,24 +9,18 @@ import (
 )
 
 func (h *Handler) setIsActive(c *gin.Context) {
-	var req dto.SetUserIsActiveRequest
-
-	if err := c.BindJSON(&req); err != nil {
-		err := InvalidRequest("")
-		c.JSON(400, err)
+	req, exists := c.Get("validated_request")
+	if !exists {
+		err := InternalError()
+		c.JSON(500, err)
 		return
 	}
 
-	if req.UserID == "" {
-		err := InvalidRequest("user_id")
-		c.JSON(400, err)
-		return
-	}
-
-	user, err := h.services.User.SetIsActive(c.Request.Context(), req.UserID, req.IsActive)
+	setIsActiveReq := req.(*dto.SetUserIsActiveRequest)
+	user, err := h.services.User.SetIsActive(c.Request.Context(), setIsActiveReq.UserID, setIsActiveReq.IsActive)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeUserNotFound) {
-			err := NotFound()
+			err := NotFound(models.ErrorCodeUserNotFound)
 			c.JSON(404, err)
 			return
 		}
@@ -47,16 +40,10 @@ func (h *Handler) setIsActive(c *gin.Context) {
 func (h *Handler) getReview(c *gin.Context) {
 	userID := c.Query("user_id")
 
-	if userID == "" {
-		err := InvalidRequest("user_id")
-		c.JSON(400, err)
-		return
-	}
-
 	userPR, err := h.services.User.GetReview(c.Request.Context(), userID)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeUserNotFound) {
-			err := NotFound()
+			err := NotFound(models.ErrorCodeUserNotFound)
 			c.JSON(404, err)
 			return
 		}
@@ -78,7 +65,7 @@ func (h *Handler) getUserAssignmentsStats(c *gin.Context) {
 	stats, err := h.services.User.GetUserAssignmentsStats(c.Request.Context())
 	if err != nil {
 		resp := InternalError()
-		c.JSON(http.StatusInternalServerError, resp)
+		c.JSON(500, resp)
 		return
 	}
 
@@ -86,5 +73,5 @@ func (h *Handler) getUserAssignmentsStats(c *gin.Context) {
 		Stats: stats,
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(200, resp)
 }

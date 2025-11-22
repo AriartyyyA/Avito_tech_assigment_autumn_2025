@@ -36,10 +36,9 @@ func TeamExists() models.ErrorResponse {
 
 	return respErr
 }
-func NotFound() models.ErrorResponse {
-
+func NotFound(code models.ErrorCode) models.ErrorResponse {
 	error := models.NewErrorDetail(
-		models.ErrorCodeNotFound,
+		code,
 		"resource not found",
 	)
 

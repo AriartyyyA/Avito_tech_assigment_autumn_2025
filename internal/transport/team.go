@@ -2,7 +2,6 @@ package transport
 
 import (
 	"errors"
-	"log"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
@@ -10,22 +9,15 @@ import (
 )
 
 func (h *Handler) addTeam(c *gin.Context) {
-	var req models.Team
-
-	if err := c.BindJSON(&req); err != nil {
-		log.Println("Error in handler")
-		err := InvalidRequest("")
-		c.JSON(400, err)
+	req, exists := c.Get("validated_request")
+	if !exists {
+		err := InternalError()
+		c.JSON(500, err)
 		return
 	}
 
-	if req.TeamName == "" {
-		err := InvalidRequest("team_name")
-		c.JSON(400, err)
-		return
-	}
-
-	team, err := h.services.Team.AddTeam(c.Request.Context(), &req)
+	teamReq := req.(*models.Team)
+	team, err := h.services.Team.AddTeam(c.Request.Context(), teamReq)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamExists) {
 			err := TeamExists()
@@ -47,21 +39,16 @@ func (h *Handler) addTeam(c *gin.Context) {
 
 func (h *Handler) getTeam(c *gin.Context) {
 	teamName := c.Query("team_name")
-	if teamName == "" {
-		err := InvalidRequest("team_name")
-		c.JSON(400, err)
-		return
-	}
 
 	team, err := h.services.Team.GetTeam(c.Request.Context(), teamName)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
-			err := NotFound()
+			err := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, err)
 			return
 		}
 
-		err := NotFound()
+		err := NotFound(models.ErrorCodeNotFound)
 		c.JSON(500, err)
 		return
 	}
@@ -72,17 +59,11 @@ func (h *Handler) getTeam(c *gin.Context) {
 func (h *Handler) getTeamPullRequests(c *gin.Context) {
 	teamName := c.Query("team_name")
 
-	if teamName == "" {
-		err := InvalidRequest("team_name")
-		c.JSON(400, err)
-		return
-	}
-
 	prs, err := h.services.Team.GetTeamPullRequests(c.Request.Context(), teamName)
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrorCodeTeamNotFound):
-			errResp := NotFound()
+			errResp := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, errResp)
 			return
 		default:
@@ -102,24 +83,18 @@ func (h *Handler) getTeamPullRequests(c *gin.Context) {
 }
 
 func (h *Handler) deactivateTeamUsers(c *gin.Context) {
-	var req dto.DeactivateTeamUsersRequest
-
-	if err := c.BindJSON(&req); err != nil {
-		err := InvalidRequest("")
-		c.JSON(400, err)
+	req, exists := c.Get("validated_request")
+	if !exists {
+		err := InternalError()
+		c.JSON(500, err)
 		return
 	}
 
-	if req.TeamName == "" {
-		err := InvalidRequest("team_name")
-		c.JSON(400, err)
-		return
-	}
-
-	result, err := h.services.Team.DeactivateTeam(c.Request.Context(), req.TeamName)
+	deactivateReq := req.(*dto.DeactivateTeamUsersRequest)
+	result, err := h.services.Team.DeactivateTeam(c.Request.Context(), deactivateReq.TeamName)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
-			err := NotFound()
+			err := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, err)
 			return
 		}

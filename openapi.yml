@@ -43,6 +43,11 @@ components:
                 - NOT_ASSIGNED
                 - NO_CANDIDATE
                 - NOT_FOUND
+                - USER_NOT_FOUND
+                - TEAM_NOT_FOUND
+                - PR_NOT_FOUND
+                - INVALID_REQUEST
+                - INTERNAL
             message:
               type: string
       example:
@@ -120,6 +125,64 @@ components:
         status:
           type: string
           enum: [OPEN, MERGED]
+    UserAssignmentsStat:
+      type: object
+      required: [ user_id, username, review_assignments_count ]
+      properties:
+        user_id:
+          type: string
+        username:
+          type: string
+        review_assignments_count:
+          type: integer
+          description: Количество назначений на ревью
+    TeamPRsResponse:
+      type: object
+      required: [ team_name, pull_request, pr_count ]
+      properties:
+        team_name:
+          type: string
+        pull_request:
+          type: array
+          items:
+            $ref: '#/components/schemas/PullRequestShort'
+        pr_count:
+          type: integer
+          description: Количество PR в команде
+    DeactivateTeamUsersRequest:
+      type: object
+      required: [ team_name ]
+      properties:
+        team_name:
+          type: string
+    DeactivateTeamUsersResponse:
+      type: object
+      required: [ team_name, deactivated_users, open_pr_count, successful_reassignments, failed_reassignments ]
+      properties:
+        team_name:
+          type: string
+        deactivated_users:
+          type: array
+          items:
+            type: string
+          description: Список user_id деактивированных пользователей
+        open_pr_count:
+          type: integer
+          description: Количество открытых PR команды
+        successful_reassignments:
+          type: integer
+          description: Количество успешных переназначений ревьюверов
+        failed_reassignments:
+          type: integer
+          description: Количество неудачных переназначений ревьюверов
+    UserAssignmentsStatsResponse:
+      type: object
+      required: [ stats ]
+      properties:
+        stats:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAssignmentsStat'
 
 paths:
   /team/add:
@@ -198,6 +261,118 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: TEAM_NOT_FOUND
+                  message: resource not found
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: team_name is required
+
+  /team/pullRequests:
+    get:
+      tags: [Teams]
+      summary: Получить все PR команды
+      description: Возвращает список всех PR, созданных участниками команды, отсортированный по дате создания
+      parameters:
+        - $ref: '#/components/parameters/TeamNameQuery'
+      responses:
+        '200':
+          description: Список PR команды
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPRsResponse'
+              example:
+                team_name: backend
+                pull_request:
+                  - pull_request_id: pr-1001
+                    pull_request_name: Add search
+                    author_id: u1
+                    status: OPEN
+                  - pull_request_id: pr-1002
+                    pull_request_name: Fix bug
+                    author_id: u2
+                    status: MERGED
+                pr_count: 2
+        '404':
+          description: Команда не найдена
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: TEAM_NOT_FOUND
+                  message: resource not found
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: team_name is required
+
+  /team/deactivateUsers:
+    post:
+      tags: [Teams]
+      summary: Деактивировать всех пользователей команды
+      description: Деактивирует всех активных пользователей команды и переназначает ревьюверов в открытых PR на других активных пользователей из тех же команд
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeactivateTeamUsersRequest'
+            example:
+              team_name: backend
+      responses:
+        '200':
+          description: Результат деактивации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivateTeamUsersResponse'
+              example:
+                team_name: backend
+                deactivated_users: [u1, u2, u3]
+                open_pr_count: 5
+                successful_reassignments: 4
+                failed_reassignments: 1
+        '404':
+          description: Команда не найдена
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: TEAM_NOT_FOUND
+                  message: resource not found
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: team_name is required
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INTERNAL
+                  message: internal error
 
   /users/setIsActive:
     post:
@@ -281,13 +456,28 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: USER_NOT_FOUND
+                  message: resource not found
         '409':
           description: PR уже существует
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
-                error: { code: PR_EXISTS, message: PR id already exists }
+                error:
+                  code: PR_EXISTS
+                  message: PR id already exists
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: pull_request_id is required
 
   /pullRequest/merge:
     post:
@@ -311,9 +501,14 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [pr, merged_at]
                 properties:
                   pr:
                     $ref: '#/components/schemas/PullRequest'
+                  merged_at:
+                    type: string
+                    format: date-time
+                    description: Дата и время мерджа PR
               example:
                 pr:
                   pull_request_id: pr-1001
@@ -321,12 +516,26 @@ paths:
                   author_id: u1
                   status: MERGED
                   assigned_reviewers: [u2, u3]
-                  mergedAt: 2025-10-24T12:34:56Z
+                  mergedAt: "2025-10-24T12:34:56Z"
+                merged_at: "2025-10-24T12:34:56Z"
         '404':
           description: PR не найден
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: PR_NOT_FOUND
+                  message: resource not found
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: pull_request_id is required
 
   /pullRequest/reassign:
     post:
@@ -352,26 +561,40 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [pr, replaced_by]
+                required: [pull_request, replaced_by]
                 properties:
-                  pr:
+                  pull_request:
                     $ref: '#/components/schemas/PullRequest'
                   replaced_by:
                     type: string
                     description: user_id нового ревьювера
               example:
-                pr:
+                pull_request:
                   pull_request_id: pr-1001
                   pull_request_name: Add search
                   author_id: u1
                   status: OPEN
                   assigned_reviewers: [u3, u5]
+                  mergedAt: null
                 replaced_by: u5
         '404':
           description: PR или пользователь не найден
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorResponse' }
+              examples:
+                prNotFound:
+                  summary: PR не найден
+                  value:
+                    error:
+                      code: PR_NOT_FOUND
+                      message: resource not found
+                userNotFound:
+                  summary: Пользователь не найден
+                  value:
+                    error:
+                      code: USER_NOT_FOUND
+                      message: resource not found
         '409':
           description: Нарушение доменных правил переназначения
           content:
@@ -381,15 +604,39 @@ paths:
                 merged:
                   summary: Нельзя менять после MERGED
                   value:
-                    error: { code: PR_MERGED, message: cannot reassign on merged PR }
+                    error:
+                      code: PR_MERGED
+                      message: cannot reassign on merged PR
                 notAssigned:
                   summary: Пользователь не был назначен ревьювером
                   value:
-                    error: { code: NOT_ASSIGNED, message: reviewer is not assigned to this PR }
+                    error:
+                      code: NOT_ASSIGNED
+                      message: reviewer is not assigned to this PR
                 noCandidate:
                   summary: Нет доступных кандидатов
                   value:
-                    error: { code: NO_CANDIDATE, message: no active replacement candidate in team }
+                    error:
+                      code: NO_CANDIDATE
+                      message: no active replacement candidate in team
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              examples:
+                missingPRID:
+                  summary: Отсутствует pull_request_id
+                  value:
+                    error:
+                      code: INVALID_REQUEST
+                      message: pull_request_id is required
+                missingOldUserID:
+                  summary: Отсутствует old_user_id
+                  value:
+                    error:
+                      code: INVALID_REQUEST
+                      message: old_user_id is required
 
   /users/getReview:
     get:
@@ -404,18 +651,69 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [ user_id, pull_requests ]
+                required: [ user_id, pull_request ]
                 properties:
                   user_id:
                     type: string
-                  pull_requests:
+                  pull_request:
                     type: array
                     items:
                       $ref: '#/components/schemas/PullRequestShort'
               example:
                 user_id: u2
-                pull_requests:
+                pull_request:
                   - pull_request_id: pr-1001
                     pull_request_name: Add search
                     author_id: u1
                     status: OPEN
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: USER_NOT_FOUND
+                  message: resource not found
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INVALID_REQUEST
+                  message: user_id is required
+
+  /users/userAssignments:
+    get:
+      tags: [Users]
+      summary: Получить статистику назначений пользователей на ревью
+      description: Возвращает список всех пользователей с количеством назначений на ревью, отсортированный по убыванию количества назначений
+      responses:
+        '200':
+          description: Статистика назначений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAssignmentsStatsResponse'
+              example:
+                stats:
+                  - user_id: u2
+                    username: Bob
+                    review_assignments_count: 5
+                  - user_id: u3
+                    username: Charlie
+                    review_assignments_count: 3
+                  - user_id: u1
+                    username: Alice
+                    review_assignments_count: 1
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              example:
+                error:
+                  code: INTERNAL
+                  message: internal error
