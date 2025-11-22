@@ -22,12 +22,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		users.POST("/setIsActive", h.setIsActive)
 		users.GET("/getReview", h.getReview)
+		users.GET("/userAssignments", h.getUserAssignmentsStats)
 	}
 
 	team := router.Group("/team")
 	{
 		team.POST("/add", h.addTeam)
 		team.GET("/get", h.getTeam)
+		team.GET("/pullRequests", h.getTeamPullRequests)
 	}
 
 	pullRequest := router.Group("/pullRequest")

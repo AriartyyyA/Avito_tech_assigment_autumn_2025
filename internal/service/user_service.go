@@ -34,3 +34,12 @@ func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.Pu
 
 	return userPR, nil
 }
+
+func (s *UserService) GetUserAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
+	stats, err := s.repository.UserRepository.GetAssignmentsStats(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return stats, nil
+}

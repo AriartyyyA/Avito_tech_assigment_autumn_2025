@@ -89,3 +89,40 @@ func (r *userRepository) SetIsActive(ctx context.Context, userID string, isActiv
 
 	return &user, nil
 }
+
+func (r *userRepository) GetAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
+	const selectAssignmentsQuery = `
+SELECT
+    u.user_id,
+    u.username,
+    COUNT(prr.pull_request_id) AS review_assignments_count
+FROM users AS u
+LEFT JOIN pull_request_reviewers AS prr
+    ON u.user_id = prr.user_id
+GROUP BY u.user_id, u.username
+ORDER BY review_assignments_count DESC, u.user_id
+`
+
+	rows, err := r.db.Query(ctx, selectAssignmentsQuery)
+	if err != nil {
+		return nil, fmt.Errorf("select assignments stats: %w", err)
+	}
+	defer rows.Close()
+
+	result := make([]models.UserAssignmentsStat, 0)
+
+	for rows.Next() {
+		var stat models.UserAssignmentsStat
+		if err := rows.Scan(&stat.UserID, &stat.Username, &stat.ReviewAssignmentsCount); err != nil {
+			return nil, fmt.Errorf("scan assignments stats: %w", err)
+		}
+
+		result = append(result, stat)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows assignments stats: %w", err)
+	}
+
+	return result, nil
+}

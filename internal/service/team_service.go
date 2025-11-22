@@ -36,3 +36,11 @@ func (s *TeamService) GetTeam(ctx context.Context, teamName string) (*models.Tea
 
 	return team, nil
 }
+
+func (s *TeamService) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
+	if _, err := s.repository.Team.GetTeam(ctx, teamName); err != nil {
+		return nil, err
+	}
+
+	return s.repository.Team.GetTeamPullRequests(ctx, teamName)
+}

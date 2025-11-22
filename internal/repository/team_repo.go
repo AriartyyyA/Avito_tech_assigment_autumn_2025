@@ -153,3 +153,44 @@ func (t *TeamRepository) GetTeam(ctx context.Context, teamName string) (*models.
 
 	return team, nil
 }
+
+func (t *TeamRepository) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
+	const selectTeamPRquery = `
+SELECT
+    pr.pull_request_id,
+    pr.pull_request_name,
+    pr.author_id,
+    pr.status
+FROM pull_requests AS pr
+JOIN users AS u
+    ON pr.author_id = u.user_id
+WHERE u.team_name = $1
+ORDER BY pr.created_at DESC, pr.pull_request_id
+`
+
+	rows, err := t.db.Query(ctx, selectTeamPRquery, teamName)
+	if err != nil {
+		return nil, fmt.Errorf("scan team PR: %w", err)
+	}
+	defer rows.Close()
+
+	result := make([]models.PullRequestShort, 0)
+
+	for rows.Next() {
+		var pr models.PullRequestShort
+		var status string
+
+		if err := rows.Scan(&pr.PullRequestID, &pr.PullRequestName, &pr.AuthorID, &status); err != nil {
+			return nil, fmt.Errorf("scan team PR: %w", err)
+		}
+
+		pr.Status = models.PullRequestStatus(status)
+		result = append(result, pr)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows team PR: %w", err)
+	}
+
+	return result, nil
+}

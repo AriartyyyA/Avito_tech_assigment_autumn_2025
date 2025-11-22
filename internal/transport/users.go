@@ -2,6 +2,7 @@ package transport
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
@@ -71,4 +72,19 @@ func (h *Handler) getReview(c *gin.Context) {
 	}
 
 	c.JSON(200, resp)
+}
+
+func (h *Handler) getUserAssignmentsStats(c *gin.Context) {
+	stats, err := h.services.User.GetUserAssignmentsStats(c.Request.Context())
+	if err != nil {
+		resp := InternalError()
+		c.JSON(http.StatusInternalServerError, resp)
+		return
+	}
+
+	resp := dto.UserAssignmentsStatsResponse{
+		Stats: stats,
+	}
+
+	c.JSON(http.StatusOK, resp)
 }

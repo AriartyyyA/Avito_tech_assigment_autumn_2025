@@ -68,3 +68,34 @@ func (h *Handler) getTeam(c *gin.Context) {
 
 	c.JSON(200, team)
 }
+
+func (h *Handler) getTeamPullRequests(c *gin.Context) {
+	teamName := c.Query("team_name")
+
+	if teamName == "" {
+		err := InvalidRequest("team_name")
+		c.JSON(400, err)
+		return
+	}
+
+	prs, err := h.services.Team.GetTeamPullRequests(c.Request.Context(), teamName)
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrorCodeTeamNotFound):
+			errResp := NotFound()
+			c.JSON(404, errResp)
+			return
+		default:
+			errResp := InternalError()
+			c.JSON(500, errResp)
+			return
+		}
+	}
+
+	resp := dto.TeamPRsResponse{
+		TeamName:    teamName,
+		PullRequest: prs,
+	}
+
+	c.JSON(200, resp)
+}

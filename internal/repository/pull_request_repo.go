@@ -443,21 +443,21 @@ func chooseRandom(ids []string, maxCount int) []string {
 	return out
 }
 
-func (r *pullRequestRepository) loadPullRequestWithReviewers(ctx context.Context, prID string) (*models.PullRequest, error) {
-	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("begin tx (load PR): %w", err)
-	}
-	defer tx.Rollback(ctx)
+// func (r *pullRequestRepository) loadPullRequestWithReviewers(ctx context.Context, prID string) (*models.PullRequest, error) {
+// 	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
+// 	if err != nil {
+// 		return nil, fmt.Errorf("begin tx (load PR): %w", err)
+// 	}
+// 	defer tx.Rollback(ctx)
 
-	pr, err := r.loadReviewersTx(ctx, tx, prID)
-	if err != nil {
-		return nil, err
-	}
+// 	pr, err := r.loadReviewersTx(ctx, tx, prID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if err := tx.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("commit tx (load PR): %w", err)
-	}
+// 	if err := tx.Commit(ctx); err != nil {
+// 		return nil, fmt.Errorf("commit tx (load PR): %w", err)
+// 	}
 
-	return pr, nil
-}
+// 	return pr, nil
+// }
