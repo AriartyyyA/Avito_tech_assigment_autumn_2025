@@ -1,5 +1,8 @@
+name: pull_request
+
 services:
   postgres:
+    container_name: pr_service_db
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: postgres
@@ -16,6 +19,7 @@ services:
       retries: 10
 
   migrate:
+    container_name: pr_service_migrate
     image: postgres:16-alpine
     environment:
       PGPASSWORD: postgres
@@ -28,6 +32,7 @@ services:
         condition: service_healthy
 
   app:
+    container_name: pr_service_app
     build: .
     environment:
       DATABASE_DSN: postgres://postgres:postgres@postgres:5432/avito_db?sslmode=disable

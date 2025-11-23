@@ -9,7 +9,6 @@ echo "Applying migrations..."
 for file in /migrations/*.sql; do
   if [ -f "$file" ]; then
     echo "Applying: $(basename $file)"
-    # Extract only SQL between -- +goose Up and -- +goose Down
     SQL=$(awk '
       $0 ~ /-- \+goose Up/ { in_up = 1; next }
       $0 ~ /-- \+goose Down/ { in_up = 0; next }
