@@ -59,7 +59,7 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository-url>
+git clone https://github.com/AriartyyyA/Avito_tech_assigment_autumn_2025
 cd Avito_tech_assigment_autumn_2025
 ```
 
