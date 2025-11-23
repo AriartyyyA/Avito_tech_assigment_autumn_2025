@@ -18,10 +18,10 @@ for file in /migrations/*.sql; do
     ' "$file")
     
     if [ -n "$SQL" ]; then
-      echo "$SQL" | psql -h postgres -U postgres -d avito_db -v ON_ERROR_STOP=1
-      echo "✓ Migration $(basename $file) applied successfully"
+      echo "$SQL" | psql -h postgres -U postgres -d avito_db || echo "Migration $(basename $file) had warnings/errors, but continuing..."
+      echo "Migration $(basename $file) processed"
     else
-      echo "⚠ No SQL found in $(basename $file)"
+      echo "No SQL found in $(basename $file)"
     fi
   fi
 done

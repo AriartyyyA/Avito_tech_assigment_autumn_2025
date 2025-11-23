@@ -190,7 +190,6 @@ WHERE pull_request_id = $1 AND user_id = $2
 		return nil, fmt.Errorf("check reviewer assigned: %w", err)
 	}
 
-	// Получаем команду заменяемого ревьювера
 	const reviewerTeamQuery = `
 SELECT team_name
 FROM users
@@ -239,11 +238,11 @@ SELECT user_id
 FROM users
 WHERE team_name = $1
   AND is_active = TRUE
-  AND user_id <> $2  -- исключаем старого ревьювера
-  AND user_id <> $3  -- исключаем автора
+  AND user_id <> $2
+  AND user_id <> $3
 `
 
-	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, OldUserID, authorID, prID)
+	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, OldUserID, authorID)
 	if err != nil {
 		return nil, fmt.Errorf("select replacement candidates: %w", err)
 	}
@@ -283,7 +282,6 @@ INSERT INTO pull_request_reviewers (pull_request_id, user_id)
 VALUES ($1, $2)
 `
 	if _, err := tx.Exec(ctx, insertNew, prID, newReviewerID); err != nil {
-		// Игнорируем ошибку уникальности (если ревьювер уже есть, это нормально)
 		if !isUnique(err) {
 			return nil, fmt.Errorf("insert new reviewer: %w", err)
 		}
