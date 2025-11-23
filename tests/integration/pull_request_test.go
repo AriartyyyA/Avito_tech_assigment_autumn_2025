@@ -209,7 +209,7 @@ func TestReassignPullRequest(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-6",
-		"old_reviewer_id": "u18",
+		"old_user_id": "u18",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -233,7 +233,7 @@ func TestReassignMergedPullRequest(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-7",
-		"old_reviewer_id": "u21",
+		"old_user_id": "u21",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -257,7 +257,7 @@ func TestReassignNotAssigned(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-8",
-		"old_reviewer_id": "u25",
+		"old_user_id": "u25",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -281,7 +281,7 @@ func TestReassignNoCandidate(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-9",
-		"old_reviewer_id": "u26",
+		"old_user_id": "u26",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
