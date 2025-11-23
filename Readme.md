@@ -37,7 +37,7 @@
 │   └── transport/              # HTTP handlers и middleware
 │       ├── dto/                # Data Transfer Objects
 │       └── middleware/         # Валидация запросов
-├── migrations/                 # SQL миграции (goose формат)
+├── migrations/                 # SQL миграции
 ├── scripts/                    # Вспомогательные скрипты
 ├── tests/
 │   └── integration/            # Интеграционные тесты

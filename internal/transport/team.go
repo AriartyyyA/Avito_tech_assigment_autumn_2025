@@ -2,6 +2,7 @@ package transport
 
 import (
 	"errors"
+	"log"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport/dto"
@@ -11,6 +12,7 @@ import (
 func (h *Handler) addTeam(c *gin.Context) {
 	req, exists := c.Get("validated_request")
 	if !exists {
+		log.Printf("ERROR: validated_request not found in context for addTeam")
 		err := InternalError()
 		c.JSON(500, err)
 		return
@@ -22,11 +24,13 @@ func (h *Handler) addTeam(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamExists) {
+			log.Printf("WARN: Team already exists: Team=%s", teamReq.TeamName)
 			err := TeamExists()
 			c.JSON(400, err)
 			return
 
 		}
+		log.Printf("ERROR: Failed to add team: Team=%s, Error=%v", teamReq.TeamName, err)
 		err := InternalError()
 		c.JSON(500, err)
 		return
@@ -46,11 +50,13 @@ func (h *Handler) getTeam(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
+			log.Printf("WARN: Team not found: Team=%s", teamName)
 			err := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, err)
 			return
 		}
 
+		log.Printf("ERROR: Failed to get team: Team=%s, Error=%v", teamName, err)
 		err := NotFound(models.ErrorCodeNotFound)
 		c.JSON(500, err)
 		return
@@ -67,11 +73,13 @@ func (h *Handler) getTeamPullRequests(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrorCodeTeamNotFound):
+			log.Printf("WARN: Team not found for PRs: Team=%s", teamName)
 			errResp := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, errResp)
 			return
 
 		default:
+			log.Printf("ERROR: Failed to get team PRs: Team=%s, Error=%v", teamName, err)
 			errResp := InternalError()
 			c.JSON(500, errResp)
 			return
@@ -91,6 +99,7 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 	req, exists := c.Get("validated_request")
 
 	if !exists {
+		log.Printf("ERROR: validated_request not found in context for deactivateTeamUsers")
 		err := InternalError()
 		c.JSON(500, err)
 		return
@@ -101,11 +110,13 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
+			log.Printf("WARN: Team not found for deactivation: Team=%s", deactivateReq.TeamName)
 			err := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, err)
 			return
 		}
 
+		log.Printf("ERROR: Failed to deactivate team: Team=%s, Error=%v", deactivateReq.TeamName, err)
 		err := InternalError()
 		c.JSON(500, err)
 		return

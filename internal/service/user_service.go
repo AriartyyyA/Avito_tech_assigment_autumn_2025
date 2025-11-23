@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
@@ -20,6 +21,7 @@ func NewUserService(repository *repository.Repository) UserService {
 func (s *userService) SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error) {
 	user, err := s.repository.UserRepository.SetIsActive(ctx, userID, isActive)
 	if err != nil {
+		log.Printf("ERROR: Failed to set user active status in repository: User=%s, IsActive=%v, Error=%v", userID, isActive, err)
 		return nil, err
 	}
 	return user, nil
@@ -29,6 +31,7 @@ func (s *userService) SetIsActive(ctx context.Context, userID string, isActive b
 func (s *userService) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
 	userPR, err := s.repository.UserRepository.GetReview(ctx, userID)
 	if err != nil {
+		log.Printf("ERROR: Failed to get user review from repository: User=%s, Error=%v", userID, err)
 		return nil, err
 	}
 
@@ -39,6 +42,7 @@ func (s *userService) GetReview(ctx context.Context, userID string) ([]models.Pu
 func (s *userService) GetUserAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
 	stats, err := s.repository.UserRepository.GetAssignmentsStats(ctx)
 	if err != nil {
+		log.Printf("ERROR: Failed to get user assignments stats from repository: Error=%v", err)
 		return nil, err
 	}
 	return stats, nil
