@@ -53,6 +53,7 @@ func (s *TeamService) DeactivateTeam(ctx context.Context, teamName string) (*mod
 		return nil, err
 	}
 
+	// Собираем активных пользователей
 	activeUsersID := make([]string, 0, len(team.Members))
 	for _, member := range team.Members {
 		if member.IsActive {
@@ -69,46 +70,38 @@ func (s *TeamService) DeactivateTeam(ctx context.Context, teamName string) (*mod
 		return result, nil
 	}
 
-	for _, userID := range activeUsersID {
-		if _, err := s.repository.UserRepository.SetIsActive(ctx, userID, false); err != nil {
-			if errors.Is(err, models.ErrorCodeUserNotFound) {
-				continue
-			}
-			return nil, fmt.Errorf("deactivate user: %w", err)
-		}
+	prsWithReviewers, err := s.repository.PullRequestRepository.GetOpenPRsWithTeamReviewers(ctx, teamName, activeUsersID)
+	if err != nil {
+		return nil, fmt.Errorf("get open PRs with team reviewers: %w", err)
 	}
 
-	for _, userID := range activeUsersID {
-		prs, err := s.repository.UserRepository.GetReview(ctx, userID)
-		if err != nil {
-			if errors.Is(err, models.ErrorCodeUserNotFound) {
+	prSet := make(map[string]bool)
+	for _, pr := range prsWithReviewers {
+		prSet[pr.PullRequestID] = true
+	}
+	result.OpenPRCount = len(prSet)
+
+	// Переназначаем ревьюверов (пока пользователи еще активны!)
+	// Используем существующий метод ReassignPullRequest, который теперь исключает
+	// всех текущих ревьюверов PR из кандидатов
+	for _, pr := range prsWithReviewers {
+		if _, err := s.repository.PullRequestRepository.ReassignPullRequest(ctx, pr.PullRequestID, pr.ReviewerID); err != nil {
+			switch {
+			case errors.Is(err, models.ErrorCodePRNotFound),
+				errors.Is(err, models.ErrorCodePRMerged),
+				errors.Is(err, models.ErrorCodeNotAssigned),
+				errors.Is(err, models.ErrorCodeNoCandidate):
+				result.FailedReassignments++
 				continue
+			default:
+				return nil, fmt.Errorf("reassign PR %q for reviewer %q: %w", pr.PullRequestID, pr.ReviewerID, err)
 			}
-			return nil, fmt.Errorf("get user review: %w", err)
 		}
+		result.SuccessfulReassignments++
+	}
 
-		for _, pr := range prs {
-			if pr.Status != models.PullRequestStatusOpen {
-				continue
-			}
-
-			result.OpenPRCount++
-
-			if _, err := s.repository.PullRequestRepository.ReassignPullRequest(ctx, pr.PullRequestID, userID); err != nil {
-				switch {
-				case errors.Is(err, models.ErrorCodePRNotFound),
-					errors.Is(err, models.ErrorCodePRMerged),
-					errors.Is(err, models.ErrorCodeNotAssigned),
-					errors.Is(err, models.ErrorCodeNoCandidate):
-					result.FailedReassignments++
-					continue
-				default:
-					return nil, fmt.Errorf("reassign PR %q for user %q: %w", pr.PullRequestID, userID, err)
-				}
-			}
-
-			result.SuccessfulReassignments++
-		}
+	if err := s.repository.UserRepository.DeactivateUsers(ctx, activeUsersID); err != nil {
+		return nil, fmt.Errorf("batch deactivate users: %w", err)
 	}
 
 	return result, nil

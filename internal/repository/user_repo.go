@@ -126,3 +126,20 @@ ORDER BY review_assignments_count DESC, u.user_id
 
 	return result, nil
 }
+
+func (r *userRepository) DeactivateUsers(ctx context.Context, userIDs []string) error {
+	if len(userIDs) == 0 {
+		return nil
+	}
+
+	const query = `UPDATE users
+		SET is_active = FALSE
+		WHERE user_id = ANY($1)`
+
+	_, err := r.db.Exec(ctx, query, userIDs)
+	if err != nil {
+		return fmt.Errorf("batch deactivate users: %w", err)
+	}
+
+	return nil
+}

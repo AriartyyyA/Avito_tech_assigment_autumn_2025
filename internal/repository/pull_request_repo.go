@@ -171,43 +171,7 @@ WHERE pull_request_id = $1 AND user_id = $2
 		return nil, fmt.Errorf("check reviewer assigned: %w", err)
 	}
 
-	const currentReviewersQuery = `
-SELECT user_id
-FROM pull_request_reviewers
-WHERE pull_request_id = $1
-`
-
-	rows, err := tx.Query(ctx, currentReviewersQuery, prID)
-	if err != nil {
-		return nil, fmt.Errorf("select current reviewers: %w", err)
-	}
-	defer rows.Close()
-
-	var (
-		currentReviewers []string
-		otherReviewersID string
-	)
-
-	for rows.Next() {
-		var uID string
-		if err := rows.Scan(&uID); err != nil {
-			return nil, fmt.Errorf("scan current reviewer: %w", err)
-		}
-
-		currentReviewers = append(currentReviewers, uID)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("iterate current reviewers: %w", err)
-	}
-
-	for _, uID := range currentReviewers {
-		if uID != OldUserID {
-			otherReviewersID = uID
-			break
-		}
-	}
-
+	// Получаем команду заменяемого ревьювера
 	const reviewerTeamQuery = `
 SELECT team_name
 FROM users
@@ -225,16 +189,41 @@ WHERE user_id = $1
 		return nil, fmt.Errorf("select reviewer team: %w", err)
 	}
 
+	const currentReviewersQuery = `
+SELECT user_id
+FROM pull_request_reviewers
+WHERE pull_request_id = $1
+`
+
+	rows, err := tx.Query(ctx, currentReviewersQuery, prID)
+	if err != nil {
+		return nil, fmt.Errorf("select current reviewers: %w", err)
+	}
+	defer rows.Close()
+
+	currentReviewers := make([]string, 0)
+	for rows.Next() {
+		var uID string
+		if err := rows.Scan(&uID); err != nil {
+			return nil, fmt.Errorf("scan current reviewer: %w", err)
+		}
+		currentReviewers = append(currentReviewers, uID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate current reviewers: %w", err)
+	}
+
 	const candidatesQuery = `
 SELECT user_id
 FROM users
 WHERE team_name = $1
   AND is_active = TRUE
-  AND user_id <> $2
-  AND user_id <> $3
+  AND user_id <> $2  -- исключаем старого ревьювера
+  AND user_id <> $3  -- исключаем автора
 `
 
-	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, OldUserID, authorID)
+	candidatesRows, err := tx.Query(ctx, candidatesQuery, reviewerTeam, OldUserID, authorID, prID)
 	if err != nil {
 		return nil, fmt.Errorf("select replacement candidates: %w", err)
 	}
@@ -269,12 +258,13 @@ WHERE pull_request_id = $1 AND user_id = $2
 		return nil, fmt.Errorf("delete old reviewer: %w", err)
 	}
 
-	if otherReviewersID == "" || newReviewerID != otherReviewersID {
-		const insertNew = `
+	const insertNew = `
 INSERT INTO pull_request_reviewers (pull_request_id, user_id)
 VALUES ($1, $2)
 `
-		if _, err := tx.Exec(ctx, insertNew, prID, newReviewerID); err != nil {
+	if _, err := tx.Exec(ctx, insertNew, prID, newReviewerID); err != nil {
+		// Игнорируем ошибку уникальности (если ревьювер уже есть, это нормально)
+		if !isUnique(err) {
 			return nil, fmt.Errorf("insert new reviewer: %w", err)
 		}
 	}
@@ -443,21 +433,43 @@ func chooseRandom(ids []string, maxCount int) []string {
 	return out
 }
 
-// func (r *pullRequestRepository) loadPullRequestWithReviewers(ctx context.Context, prID string) (*models.PullRequest, error) {
-// 	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
-// 	if err != nil {
-// 		return nil, fmt.Errorf("begin tx (load PR): %w", err)
-// 	}
-// 	defer tx.Rollback(ctx)
+func (r *pullRequestRepository) GetOpenPRsWithTeamReviewers(ctx context.Context, teamName string, userIDs []string) ([]PRWithReviewer, error) {
+	if len(userIDs) == 0 {
+		return []PRWithReviewer{}, nil
+	}
 
-// 	pr, err := r.loadReviewersTx(ctx, tx, prID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	const query = `
+SELECT DISTINCT
+    pr.pull_request_id,
+    prr.user_id AS reviewer_id,
+    pr.author_id
+FROM pull_requests AS pr
+JOIN pull_request_reviewers AS prr
+    ON pr.pull_request_id = prr.pull_request_id
+WHERE pr.status = 'OPEN'
+  AND prr.user_id = ANY($1)
+ORDER BY pr.pull_request_id, prr.user_id
+`
 
-// 	if err := tx.Commit(ctx); err != nil {
-// 		return nil, fmt.Errorf("commit tx (load PR): %w", err)
-// 	}
+	rows, err := r.db.Query(ctx, query, userIDs)
+	if err != nil {
+		return nil, fmt.Errorf("get open PRs with team reviewers: %w", err)
+	}
+	defer rows.Close()
 
-// 	return pr, nil
-// }
+	result := make([]PRWithReviewer, 0)
+
+	for rows.Next() {
+		var pr PRWithReviewer
+		if err := rows.Scan(&pr.PullRequestID, &pr.ReviewerID, &pr.AuthorID); err != nil {
+			return nil, fmt.Errorf("scan PR with reviewer: %w", err)
+		}
+		result = append(result, pr)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate PRs with reviewers: %w", err)
+	}
+
+	return result, nil
+}
