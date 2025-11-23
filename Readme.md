@@ -77,44 +77,6 @@ docker-compose up -d --build
 
 Миграции применяются автоматически при запуске.
 
-### Локальная разработка
-
-1. Установите зависимости:
-```bash
-go mod download
-```
-
-2. Создайте файл `.env`:
-```env
-DATABASE_DSN=postgres://postgres:postgres@localhost:5432/avito_db?sslmode=disable
-```
-
-3. Запустите PostgreSQL (через Docker):
-```bash
-docker run -d \
-  --name postgres \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=avito_db \
-  -p 5432:5432 \
-  postgres:16-alpine
-```
-
-4. Примените миграции:
-```bash
-make db-migrate
-```
-
-5. Запустите приложение:
-```bash
-make run
-```
-
-Или:
-```bash
-go run ./cmd/main.go
-```
-
 ## API Документация
 
 Полная спецификация API доступна в файле `openapi.yml`. Для просмотра интерактивной документации используйте Swagger UI или другие инструменты.
