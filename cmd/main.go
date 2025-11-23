@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/config"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
@@ -15,6 +20,9 @@ import (
 
 func main() {
 	_ = godotenv.Load()
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
 
 	conn, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_DSN"))
 	if err != nil {
@@ -35,8 +43,33 @@ func main() {
 
 	srv := new(config.Server)
 
-	if err := srv.Run(handlers.InitRoutes()); err != nil {
-		log.Fatal(err)
-	}
+	serverErrChan := make(chan error, 1)
+
+	go func() {
+		if err := srv.Run(handlers.InitRoutes()); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErrChan <- err
+		}
+
+		close(serverErrChan)
+	}()
+
 	log.Println("server is starting")
+
+	select {
+	case <-ctx.Done():
+		log.Println("shutdown signal")
+	case err := <-serverErrChan:
+		if err != nil {
+			log.Printf("server run error: %v", err)
+		}
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("server forced to shutdown: %v", err)
+	} else {
+		log.Println("server exited gracefully")
+	}
 }

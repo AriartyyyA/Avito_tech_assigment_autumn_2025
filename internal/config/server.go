@@ -1,6 +1,10 @@
 package config
 
-import "net/http"
+import (
+	"context"
+	"log"
+	"net/http"
+)
 
 type Server struct {
 	httpServer *http.Server
@@ -13,4 +17,9 @@ func (s *Server) Run(handler http.Handler) error {
 	}
 
 	return s.httpServer.ListenAndServe()
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	log.Println("http server is shutting down")
+	return s.httpServer.Shutdown(ctx)
 }
