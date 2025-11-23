@@ -19,7 +19,9 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env: %v", err)
+	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
@@ -28,7 +30,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v", err.Error())
 	}
-	defer conn.Close()
+	defer func() {
+		log.Println("closing db connection pool")
+		conn.Close()
+	}()
 
 	err = conn.Ping(context.Background())
 	if err != nil {
@@ -47,7 +52,9 @@ func main() {
 
 	go func() {
 		if err := srv.Run(handlers.InitRoutes()); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Printf("http server ListenAndServe error: %v", err)
 			serverErrChan <- err
+			return
 		}
 
 		close(serverErrChan)

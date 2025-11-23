@@ -7,6 +7,7 @@ import (
 )
 
 // /pull_request/create
+
 type CreatePRRequestDto struct {
 	PullRequestID   string `json:"pull_request_id"`
 	PullRequestName string `json:"pull_request_name"`
@@ -14,11 +15,13 @@ type CreatePRRequestDto struct {
 }
 
 // Эта DTO у нас используется и для create и для merge
+
 type PRResponseDto struct {
 	PullRequest models.PullRequest `json:"pr"`
 }
 
 // /pull_request/merge
+
 type MergePRRequestDto struct {
 	PullRequestID string `json:"pull_request_id"`
 }
@@ -29,6 +32,7 @@ type MergePRResponseDto struct {
 }
 
 // /pull_request/reassign
+
 type ReassignPRRequestDto struct {
 	PullRequestID string `json:"pull_request_id"`
 	OldUserID     string `json:"old_user_id"`

@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -25,17 +27,25 @@ func NewPullRequestRepository(db *pgxpool.Pool) PullRequestRepository {
 
 func (r *pullRequestRepository) CreatePullRequest(ctx context.Context, pr *models.PullRequest) (*models.PullRequest, error) {
 	if pr == nil {
+		log.Println("CreatePullRequest: pull request is nil")
 		return nil, fmt.Errorf("pull request is nil")
 	}
+
 	if pr.PullRequestID == "" || pr.PullRequestName == "" || pr.AuthorID == "" {
+		log.Println("invalid input data")
 		return nil, fmt.Errorf("id, name and author_id are required")
 	}
 
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
+		log.Printf("begin tx: %v", err)
 		return nil, fmt.Errorf("begin tx (create PR): %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil && errors.Is(err, sql.ErrTxDone) {
+			log.Printf("rollback error: %v", err)
+		}
+	}()
 
 	const authorQuery = `SELECT team_name
 	FROM users
@@ -45,6 +55,7 @@ func (r *pullRequestRepository) CreatePullRequest(ctx context.Context, pr *model
 
 	if err = tx.QueryRow(ctx, authorQuery, pr.AuthorID).Scan(&authorTeam); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			log.Printf("author not found: %s", pr.AuthorID)
 			return nil, models.ErrorCodeUserNotFound
 		}
 
@@ -59,6 +70,7 @@ func (r *pullRequestRepository) CreatePullRequest(ctx context.Context, pr *model
 
 	candidatesRows, err := tx.Query(ctx, candidatesQuery, authorTeam, pr.AuthorID)
 	if err != nil {
+		log.Printf("select reviewer candidates error: %v", err)
 		return nil, fmt.Errorf("select reviewer candidates: %w", err)
 	}
 	defer candidatesRows.Close()
@@ -68,12 +80,14 @@ func (r *pullRequestRepository) CreatePullRequest(ctx context.Context, pr *model
 	for candidatesRows.Next() {
 		var uID string
 		if err := candidatesRows.Scan(&uID); err != nil {
+			log.Printf("scan candidate error: %v", err)
 			return nil, fmt.Errorf("scan candidates: %w", err)
 		}
 		candidatesID = append(candidatesID, uID)
 	}
 
 	if err := candidatesRows.Err(); err != nil {
+		log.Printf("iterate candidates error: %v", err)
 		return nil, fmt.Errorf("iterate candidates: %w", err)
 	}
 
@@ -85,9 +99,10 @@ VALUES ($1, $2, $3, $4)
 `
 	if _, err := tx.Exec(ctx, insertPR, pr.PullRequestID, pr.PullRequestName, pr.AuthorID, string(models.PullRequestStatusOpen)); err != nil {
 		if isUnique(err) {
+			log.Printf("pull_request already exists, id=%s, err=%v", pr.PullRequestID, err)
 			return nil, models.ErrorCodePRExists
 		}
-
+		log.Printf("insert pull_request error, id=%s, err=%v", pr.PullRequestID, err)
 		return nil, fmt.Errorf("insert pull_request: %w", err)
 	}
 
@@ -127,7 +142,11 @@ func (r *pullRequestRepository) ReassignPullRequest(ctx context.Context, prID st
 	if err != nil {
 		return nil, fmt.Errorf("begin tx (reassign PR): %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil && errors.Is(err, sql.ErrTxDone) {
+			log.Printf("rollback error: %v", err)
+		}
+	}()
 
 	const selectPRQuery = `
 SELECT pull_request_id, pull_request_name, author_id, status
@@ -293,7 +312,11 @@ func (r *pullRequestRepository) MergePullRequest(ctx context.Context, prID strin
 	if err != nil {
 		return nil, fmt.Errorf("begin tx (merge PR): %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil && errors.Is(err, sql.ErrTxDone) {
+			log.Printf("rollback error: %v", err)
+		}
+	}()
 
 	const selectStatusQuery = `
 SELECT status

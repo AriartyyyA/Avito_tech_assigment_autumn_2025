@@ -22,8 +22,8 @@ func (s *UserService) SetIsActive(ctx context.Context, userID string, isActive b
 	if err != nil {
 		return nil, err
 	}
-
 	return user, nil
+
 }
 
 func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
@@ -33,6 +33,7 @@ func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.Pu
 	}
 
 	return userPR, nil
+
 }
 
 func (s *UserService) GetUserAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
@@ -40,6 +41,6 @@ func (s *UserService) GetUserAssignmentsStats(ctx context.Context) ([]models.Use
 	if err != nil {
 		return nil, err
 	}
-
 	return stats, nil
+
 }

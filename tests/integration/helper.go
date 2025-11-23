@@ -12,7 +12,7 @@ import (
 )
 
 func setupTestHandler(mockSvc *MockService) *transport.Handler {
-	// Создаем Service с моками
+
 	testService := &service.Service{
 		User:        mockSvc.User,
 		PullRequest: mockSvc.PullRequest,

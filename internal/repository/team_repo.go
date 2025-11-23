@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/models"
 	"github.com/jackc/pgx/v5"
@@ -26,7 +28,11 @@ func (t *TeamRepository) AddTeam(ctx context.Context, team *models.Team) (*model
 	if err != nil {
 		return nil, fmt.Errorf("begin tx: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil && errors.Is(err, sql.ErrTxDone) {
+			log.Printf("rollback error: %v", err)
+		}
+	}()
 
 	if _, err := tx.Exec(ctx,
 		`INSERT INTO teams (team_name) VALUES ($1)`,

@@ -23,13 +23,6 @@ down-clean:
 restart: 
 	$(DOCKER_COMPOSE) restart
 
-run:
-	@if [ ! -f .env ]; then \
-		echo "Creating .env file from example..."; \
-		echo "DATABASE_DSN=postgres://postgres:postgres@localhost:5432/avito_db?sslmode=disable" > .env; \
-	fi
-	go run ./cmd/main.go
-
 test:
 	go test -v ./...
 

@@ -7,72 +7,101 @@ import (
 )
 
 func InvalidRequest(item string) models.ErrorResponse {
+
 	errStr := fmt.Sprintf("%s is required", item)
 
 	if item == "" {
+
 		errStr = "invalid request"
+
 	}
 
 	error := models.NewErrorDetail(
+
 		models.ErrorCodeInvalidRequest,
+
 		errStr,
 	)
 
 	respErr := models.ErrorResponse{
+
 		Error: error,
 	}
 
 	return respErr
+
 }
+
 func TeamExists() models.ErrorResponse {
+
 	error := models.NewErrorDetail(
+
 		models.ErrorCodeTeamExists,
+
 		"team_name already exists",
 	)
 
 	respErr := models.ErrorResponse{
+
 		Error: error,
 	}
 
 	return respErr
+
 }
+
 func NotFound(code models.ErrorCode) models.ErrorResponse {
+
 	error := models.NewErrorDetail(
+
 		code,
+
 		"resource not found",
 	)
 
 	respErr := models.ErrorResponse{
+
 		Error: error,
 	}
 
 	return respErr
+
 }
 
 func PRExists() models.ErrorResponse {
+
 	error := models.NewErrorDetail(
+
 		models.ErrorCodePRExists,
+
 		"PR id already exists",
 	)
 
 	respErr := models.ErrorResponse{
+
 		Error: error,
 	}
 
 	return respErr
+
 }
 
 func PRMerged() models.ErrorResponse {
+
 	error := models.NewErrorDetail(
+
 		models.ErrorCodePRMerged,
+
 		"cannot reassign on merged PR",
 	)
 
 	respErr := models.ErrorResponse{
+
 		Error: error,
 	}
 
 	return respErr
+
 }
 
 func NotAssigned() models.ErrorResponse {
@@ -86,7 +115,9 @@ func NotAssigned() models.ErrorResponse {
 	}
 
 	return respErr
+
 }
+
 func NoCandidate() models.ErrorResponse {
 	error := models.NewErrorDetail(
 		models.ErrorCodeNoCandidate,
@@ -98,6 +129,7 @@ func NoCandidate() models.ErrorResponse {
 	}
 
 	return respErr
+
 }
 
 func InternalError() models.ErrorResponse {

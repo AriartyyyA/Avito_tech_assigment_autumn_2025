@@ -14,20 +14,23 @@ func (h *Handler) addTeam(c *gin.Context) {
 		err := InternalError()
 		c.JSON(500, err)
 		return
+
 	}
 
 	teamReq := req.(*models.Team)
 	team, err := h.services.Team.AddTeam(c.Request.Context(), teamReq)
+
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamExists) {
 			err := TeamExists()
 			c.JSON(400, err)
 			return
-		}
 
+		}
 		err := InternalError()
 		c.JSON(500, err)
 		return
+
 	}
 
 	resp := dto.AddTeamDTO{
@@ -39,8 +42,8 @@ func (h *Handler) addTeam(c *gin.Context) {
 
 func (h *Handler) getTeam(c *gin.Context) {
 	teamName := c.Query("team_name")
-
 	team, err := h.services.Team.GetTeam(c.Request.Context(), teamName)
+
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
 			err := NotFound(models.ErrorCodeTeamNotFound)
@@ -54,18 +57,20 @@ func (h *Handler) getTeam(c *gin.Context) {
 	}
 
 	c.JSON(200, team)
+
 }
 
 func (h *Handler) getTeamPullRequests(c *gin.Context) {
 	teamName := c.Query("team_name")
-
 	prs, err := h.services.Team.GetTeamPullRequests(c.Request.Context(), teamName)
+
 	if err != nil {
 		switch {
 		case errors.Is(err, models.ErrorCodeTeamNotFound):
 			errResp := NotFound(models.ErrorCodeTeamNotFound)
 			c.JSON(404, errResp)
 			return
+
 		default:
 			errResp := InternalError()
 			c.JSON(500, errResp)
@@ -84,6 +89,7 @@ func (h *Handler) getTeamPullRequests(c *gin.Context) {
 
 func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 	req, exists := c.Get("validated_request")
+
 	if !exists {
 		err := InternalError()
 		c.JSON(500, err)
@@ -92,6 +98,7 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 
 	deactivateReq := req.(*dto.DeactivateTeamUsersRequest)
 	result, err := h.services.Team.DeactivateTeam(c.Request.Context(), deactivateReq.TeamName)
+
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
 			err := NotFound(models.ErrorCodeTeamNotFound)
@@ -102,6 +109,7 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 		err := InternalError()
 		c.JSON(500, err)
 		return
+
 	}
 
 	resp := dto.DeactivateTeamUsersResponse{
@@ -111,7 +119,6 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 		SuccessfulReassignments: result.SuccessfulReassignments,
 		FailedReassignments:     result.FailedReassignments,
 	}
-
 	c.JSON(200, resp)
 
 }

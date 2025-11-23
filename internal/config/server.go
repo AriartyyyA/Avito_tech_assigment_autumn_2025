@@ -16,6 +16,7 @@ func (s *Server) Run(handler http.Handler) error {
 		Handler: handler,
 	}
 
+	log.Printf("http server starting on %s", s.httpServer.Addr)
 	return s.httpServer.ListenAndServe()
 }
 
