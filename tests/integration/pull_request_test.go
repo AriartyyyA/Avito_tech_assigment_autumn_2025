@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestCreatePullRequest тестирует создание PR
 func TestCreatePullRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -63,7 +62,6 @@ func TestCreatePullRequest(t *testing.T) {
 	}
 }
 
-// TestCreatePullRequestDuplicate тестирует создание дублирующегося PR
 func TestCreatePullRequestDuplicate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -88,7 +86,6 @@ func TestCreatePullRequestDuplicate(t *testing.T) {
 	}
 }
 
-// TestCreatePullRequestAuthorNotFound тестирует создание PR с несуществующим автором
 func TestCreatePullRequestAuthorNotFound(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -113,7 +110,6 @@ func TestCreatePullRequestAuthorNotFound(t *testing.T) {
 	}
 }
 
-// TestMergePullRequest тестирует слияние PR
 func TestMergePullRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -160,7 +156,6 @@ func TestMergePullRequest(t *testing.T) {
 	}
 }
 
-// TestMergePullRequestNotFound тестирует слияние несуществующего PR
 func TestMergePullRequestNotFound(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -183,7 +178,6 @@ func TestMergePullRequestNotFound(t *testing.T) {
 	}
 }
 
-// TestReassignPullRequest тестирует переназначение ревьювера
 func TestReassignPullRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -209,7 +203,7 @@ func TestReassignPullRequest(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-6",
-		"old_user_id": "u18",
+		"old_user_id":     "u18",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -219,7 +213,6 @@ func TestReassignPullRequest(t *testing.T) {
 	}
 }
 
-// TestReassignMergedPullRequest тестирует попытку переназначения слитого PR
 func TestReassignMergedPullRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -233,7 +226,7 @@ func TestReassignMergedPullRequest(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-7",
-		"old_user_id": "u21",
+		"old_user_id":     "u21",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -243,7 +236,6 @@ func TestReassignMergedPullRequest(t *testing.T) {
 	}
 }
 
-// TestReassignNotAssigned тестирует переназначение не назначенного ревьювера
 func TestReassignNotAssigned(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -257,7 +249,7 @@ func TestReassignNotAssigned(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-8",
-		"old_user_id": "u25",
+		"old_user_id":     "u25",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -267,7 +259,6 @@ func TestReassignNotAssigned(t *testing.T) {
 	}
 }
 
-// TestReassignNoCandidate тестирует переназначение когда нет кандидатов
 func TestReassignNoCandidate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -281,7 +272,7 @@ func TestReassignNoCandidate(t *testing.T) {
 
 	reqBody := map[string]interface{}{
 		"pull_request_id": "pr-9",
-		"old_user_id": "u26",
+		"old_user_id":     "u26",
 	}
 
 	w := makeRequest(router, "POST", "/pullRequest/reassign", reqBody)
@@ -290,4 +281,3 @@ func TestReassignNoCandidate(t *testing.T) {
 		t.Errorf("Expected status 409 for no candidate, got %d", w.Code)
 	}
 }
-

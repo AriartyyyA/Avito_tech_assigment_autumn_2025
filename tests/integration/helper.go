@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// setupTestHandler создает тестовый handler с моками
 func setupTestHandler(mockSvc *MockService) *transport.Handler {
 	// Создаем Service с моками
 	testService := &service.Service{
@@ -23,7 +22,6 @@ func setupTestHandler(mockSvc *MockService) *transport.Handler {
 	return transport.NewHandler(testService)
 }
 
-// makeRequest выполняет HTTP запрос к тестовому серверу
 func makeRequest(router *gin.Engine, method, url string, body interface{}) *httptest.ResponseRecorder {
 	var reqBody []byte
 	if body != nil {
@@ -39,4 +37,3 @@ func makeRequest(router *gin.Engine, method, url string, body interface{}) *http
 	router.ServeHTTP(w, req)
 	return w
 }
-

@@ -58,7 +58,6 @@ func TestAddTeam(t *testing.T) {
 	}
 }
 
-// TestAddTeamDuplicate тестирует создание дублирующейся команды
 func TestAddTeamDuplicate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -84,7 +83,6 @@ func TestAddTeamDuplicate(t *testing.T) {
 	}
 }
 
-// TestGetTeam тестирует получение команды
 func TestGetTeam(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -122,7 +120,6 @@ func TestGetTeam(t *testing.T) {
 	}
 }
 
-// TestGetTeamNotFound тестирует получение несуществующей команды
 func TestGetTeamNotFound(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -141,7 +138,6 @@ func TestGetTeamNotFound(t *testing.T) {
 	}
 }
 
-// TestGetTeamPullRequests тестирует получение PR команды
 func TestGetTeamPullRequests(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -173,7 +169,6 @@ func TestGetTeamPullRequests(t *testing.T) {
 	}
 }
 
-// TestDeactivateTeamUsers тестирует деактивацию пользователей команды
 func TestDeactivateTeamUsers(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -203,4 +198,3 @@ func TestDeactivateTeamUsers(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 }
-

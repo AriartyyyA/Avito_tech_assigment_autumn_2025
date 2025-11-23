@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestSetIsActive тестирует установку активности пользователя
 func TestSetIsActive(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -55,7 +54,6 @@ func TestSetIsActive(t *testing.T) {
 	}
 }
 
-// TestSetIsActiveNotFound тестирует установку активности несуществующего пользователя
 func TestSetIsActiveNotFound(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -79,7 +77,6 @@ func TestSetIsActiveNotFound(t *testing.T) {
 	}
 }
 
-// TestGetReview тестирует получение PR для ревью пользователя
 func TestGetReview(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -110,7 +107,6 @@ func TestGetReview(t *testing.T) {
 	}
 }
 
-// TestGetUserAssignmentsStats тестирует получение статистики назначений
 func TestGetUserAssignmentsStats(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -141,4 +137,3 @@ func TestGetUserAssignmentsStats(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 }
-

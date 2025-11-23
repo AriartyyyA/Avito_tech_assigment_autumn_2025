@@ -44,7 +44,6 @@ func TestCreatePullRequestInvalidRequest(t *testing.T) {
 	}
 }
 
-// TestGetTeamInvalidRequest тестирует валидацию запроса получения команды
 func TestGetTeamInvalidRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -52,11 +51,9 @@ func TestGetTeamInvalidRequest(t *testing.T) {
 	handler := setupTestHandler(mockSvc)
 	router := handler.InitRoutes()
 
-	// Запрос без параметра team_name
 	w := makeRequest(router, "GET", "/team/get", nil)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected status 400 for invalid request, got %d", w.Code)
 	}
 }
-

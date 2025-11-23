@@ -7,10 +7,9 @@ import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/service"
 )
 
-// MockUserService - мок для User сервиса
 type MockUserService struct {
-	SetIsActiveFunc          func(ctx context.Context, userID string, isActive bool) (*models.User, error)
-	GetReviewFunc            func(ctx context.Context, userID string) ([]models.PullRequestShort, error)
+	SetIsActiveFunc             func(ctx context.Context, userID string, isActive bool) (*models.User, error)
+	GetReviewFunc               func(ctx context.Context, userID string) ([]models.PullRequestShort, error)
 	GetUserAssignmentsStatsFunc func(ctx context.Context) ([]models.UserAssignmentsStat, error)
 }
 
@@ -35,7 +34,6 @@ func (m *MockUserService) GetUserAssignmentsStats(ctx context.Context) ([]models
 	return nil, nil
 }
 
-// MockPullRequestService - мок для PullRequest сервиса
 type MockPullRequestService struct {
 	CreatePullRequestFunc   func(ctx context.Context, pullRequestID, pullRequestName, authorID string) (*models.PullRequest, error)
 	MergePullRequestFunc    func(ctx context.Context, prID string) (*models.PullRequest, error)
@@ -63,12 +61,11 @@ func (m *MockPullRequestService) ReassignPullRequest(ctx context.Context, prID s
 	return nil, nil
 }
 
-// MockTeamService - мок для Team сервиса
 type MockTeamService struct {
-	AddTeamFunc            func(ctx context.Context, team *models.Team) (*models.Team, error)
-	GetTeamFunc            func(ctx context.Context, teamName string) (*models.Team, error)
+	AddTeamFunc             func(ctx context.Context, team *models.Team) (*models.Team, error)
+	GetTeamFunc             func(ctx context.Context, teamName string) (*models.Team, error)
 	GetTeamPullRequestsFunc func(ctx context.Context, teamName string) ([]models.PullRequestShort, error)
-	DeactivateTeamFunc     func(ctx context.Context, teamName string) (*models.TeamDeactivate, error)
+	DeactivateTeamFunc      func(ctx context.Context, teamName string) (*models.TeamDeactivate, error)
 }
 
 func (m *MockTeamService) AddTeam(ctx context.Context, team *models.Team) (*models.Team, error) {
@@ -99,7 +96,6 @@ func (m *MockTeamService) DeactivateTeam(ctx context.Context, teamName string) (
 	return nil, nil
 }
 
-// MockService - мок для Service
 type MockService struct {
 	User        service.User
 	PullRequest service.PullRequest
@@ -113,4 +109,3 @@ func NewMockService() *MockService {
 		Team:        &MockTeamService{},
 	}
 }
-
