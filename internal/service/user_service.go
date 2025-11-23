@@ -7,17 +7,17 @@ import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
 
-type UserService struct {
+type userService struct {
 	repository *repository.Repository
 }
 
-func NewUserService(repository *repository.Repository) User {
-	return &UserService{
+func NewUserService(repository *repository.Repository) UserService {
+	return &userService{
 		repository: repository,
 	}
 }
 
-func (s *UserService) SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error) {
+func (s *userService) SetIsActive(ctx context.Context, userID string, isActive bool) (*models.User, error) {
 	user, err := s.repository.UserRepository.SetIsActive(ctx, userID, isActive)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (s *UserService) SetIsActive(ctx context.Context, userID string, isActive b
 
 }
 
-func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
+func (s *userService) GetReview(ctx context.Context, userID string) ([]models.PullRequestShort, error) {
 	userPR, err := s.repository.UserRepository.GetReview(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (s *UserService) GetReview(ctx context.Context, userID string) ([]models.Pu
 
 }
 
-func (s *UserService) GetUserAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
+func (s *userService) GetUserAssignmentsStats(ctx context.Context) ([]models.UserAssignmentsStat, error) {
 	stats, err := s.repository.UserRepository.GetAssignmentsStats(ctx)
 	if err != nil {
 		return nil, err

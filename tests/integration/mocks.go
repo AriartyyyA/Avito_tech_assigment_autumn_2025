@@ -97,9 +97,9 @@ func (m *MockTeamService) DeactivateTeam(ctx context.Context, teamName string) (
 }
 
 type MockService struct {
-	User        service.User
-	PullRequest service.PullRequest
-	Team        service.Team
+	User        service.UserService
+	PullRequest service.PullRequestService
+	Team        service.TeamService
 }
 
 func NewMockService() *MockService {

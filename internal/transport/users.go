@@ -19,7 +19,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 	}
 
 	setIsActiveReq := req.(*dto.SetUserIsActiveRequest)
-	user, err := h.services.User.SetIsActive(c.Request.Context(), setIsActiveReq.UserID, setIsActiveReq.IsActive)
+	user, err := h.services.UserService.SetIsActive(c.Request.Context(), setIsActiveReq.UserID, setIsActiveReq.IsActive)
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeUserNotFound) {
 			err := NotFound(models.ErrorCodeUserNotFound)
@@ -43,7 +43,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 
 func (h *Handler) getReview(c *gin.Context) {
 	userID := c.Query("user_id")
-	userPR, err := h.services.User.GetReview(c.Request.Context(), userID)
+	userPR, err := h.services.UserService.GetReview(c.Request.Context(), userID)
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeUserNotFound) {
@@ -68,7 +68,7 @@ func (h *Handler) getReview(c *gin.Context) {
 }
 
 func (h *Handler) getUserAssignmentsStats(c *gin.Context) {
-	stats, err := h.services.User.GetUserAssignmentsStats(c.Request.Context())
+	stats, err := h.services.UserService.GetUserAssignmentsStats(c.Request.Context())
 
 	if err != nil {
 		resp := InternalError()

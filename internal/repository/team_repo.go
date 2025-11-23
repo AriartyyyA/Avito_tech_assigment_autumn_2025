@@ -13,17 +13,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type TeamRepository struct {
+type teamRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewTeamRepository(db *pgxpool.Pool) Team {
-	return &TeamRepository{
+func NewTeamRepository(db *pgxpool.Pool) TeamRepository {
+	return &teamRepository{
 		db: db,
 	}
 }
 
-func (t *TeamRepository) AddTeam(ctx context.Context, team *models.Team) (*models.Team, error) {
+func (t *teamRepository) AddTeam(ctx context.Context, team *models.Team) (*models.Team, error) {
 	tx, err := t.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("begin tx: %w", err)
@@ -108,7 +108,7 @@ func (t *TeamRepository) AddTeam(ctx context.Context, team *models.Team) (*model
 	return createdTeam, nil
 }
 
-func (t *TeamRepository) GetTeam(ctx context.Context, teamName string) (*models.Team, error) {
+func (t *teamRepository) GetTeam(ctx context.Context, teamName string) (*models.Team, error) {
 	var name string
 
 	if err := t.db.QueryRow(ctx,
@@ -160,7 +160,7 @@ func (t *TeamRepository) GetTeam(ctx context.Context, teamName string) (*models.
 	return team, nil
 }
 
-func (t *TeamRepository) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
+func (t *teamRepository) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
 	const selectTeamPRquery = `
 SELECT
     pr.pull_request_id,

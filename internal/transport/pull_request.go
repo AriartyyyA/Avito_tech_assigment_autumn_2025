@@ -9,57 +9,37 @@ import (
 )
 
 func (h *Handler) createPullRequest(c *gin.Context) {
-
 	req, exists := c.Get("validated_request")
 
 	if !exists {
-
 		err := InternalError()
-
 		c.JSON(500, err)
-
 		return
-
 	}
 
 	createReq := req.(*dto.CreatePRRequestDto)
-
-	pullRequest, err := h.services.PullRequest.CreatePullRequest(c.Request.Context(), createReq.PullRequestID, createReq.PullRequestName, createReq.AuthorID)
+	pullRequest, err := h.services.PullRequestService.CreatePullRequest(c.Request.Context(), createReq.PullRequestID, createReq.PullRequestName, createReq.AuthorID)
 
 	if err != nil {
-
 		switch {
-
 		case errors.Is(err, models.ErrorCodeUserNotFound):
-
 			err := NotFound(models.ErrorCodeUserNotFound)
-
 			c.JSON(404, err)
-
 			return
 
 		case errors.Is(err, models.ErrorCodePRExists):
-
 			err := PRExists()
-
 			c.JSON(409, err)
-
 			return
 
 		default:
-
 			err := InternalError()
-
 			c.JSON(500, err)
-
 			return
-
 		}
-
 	}
 
 	resp := dto.PRResponseDto{
-
 		PullRequest: *pullRequest,
 	}
 
@@ -68,7 +48,6 @@ func (h *Handler) createPullRequest(c *gin.Context) {
 }
 
 func (h *Handler) mergePullRequest(c *gin.Context) {
-
 	req, exists := c.Get("validated_request")
 	if !exists {
 		err := InternalError()
@@ -77,8 +56,7 @@ func (h *Handler) mergePullRequest(c *gin.Context) {
 	}
 
 	mergeReq := req.(*dto.MergePRRequestDto)
-
-	pullRequest, err := h.services.PullRequest.MergePullRequest(c.Request.Context(), mergeReq.PullRequestID)
+	pullRequest, err := h.services.PullRequestService.MergePullRequest(c.Request.Context(), mergeReq.PullRequestID)
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodePRNotFound) {
@@ -112,7 +90,7 @@ func (h *Handler) reassignPullRequest(c *gin.Context) {
 
 	reassignReq := req.(*dto.ReassignPRRequestDto)
 
-	finishPR, err := h.services.PullRequest.ReassignPullRequest(c.Request.Context(), reassignReq.PullRequestID, reassignReq.OldUserID)
+	finishPR, err := h.services.PullRequestService.ReassignPullRequest(c.Request.Context(), reassignReq.PullRequestID, reassignReq.OldUserID)
 
 	if err != nil {
 		switch {

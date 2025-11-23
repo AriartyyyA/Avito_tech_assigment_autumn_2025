@@ -18,7 +18,7 @@ func (h *Handler) addTeam(c *gin.Context) {
 	}
 
 	teamReq := req.(*models.Team)
-	team, err := h.services.Team.AddTeam(c.Request.Context(), teamReq)
+	team, err := h.services.TeamService.AddTeam(c.Request.Context(), teamReq)
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamExists) {
@@ -42,7 +42,7 @@ func (h *Handler) addTeam(c *gin.Context) {
 
 func (h *Handler) getTeam(c *gin.Context) {
 	teamName := c.Query("team_name")
-	team, err := h.services.Team.GetTeam(c.Request.Context(), teamName)
+	team, err := h.services.TeamService.GetTeam(c.Request.Context(), teamName)
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {
@@ -62,7 +62,7 @@ func (h *Handler) getTeam(c *gin.Context) {
 
 func (h *Handler) getTeamPullRequests(c *gin.Context) {
 	teamName := c.Query("team_name")
-	prs, err := h.services.Team.GetTeamPullRequests(c.Request.Context(), teamName)
+	prs, err := h.services.TeamService.GetTeamPullRequests(c.Request.Context(), teamName)
 
 	if err != nil {
 		switch {
@@ -97,7 +97,7 @@ func (h *Handler) deactivateTeamUsers(c *gin.Context) {
 	}
 
 	deactivateReq := req.(*dto.DeactivateTeamUsersRequest)
-	result, err := h.services.Team.DeactivateTeam(c.Request.Context(), deactivateReq.TeamName)
+	result, err := h.services.TeamService.DeactivateTeam(c.Request.Context(), deactivateReq.TeamName)
 
 	if err != nil {
 		if errors.Is(err, models.ErrorCodeTeamNotFound) {

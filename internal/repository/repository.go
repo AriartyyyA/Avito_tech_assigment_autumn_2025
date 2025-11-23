@@ -21,7 +21,7 @@ type PullRequestRepository interface {
 	GetOpenPRsWithTeamReviewers(ctx context.Context, teamName string, userIDs []string) ([]PRWithReviewer, error)
 }
 
-type Team interface {
+type TeamRepository interface {
 	AddTeam(ctx context.Context, team *models.Team) (*models.Team, error)
 	GetTeam(ctx context.Context, teamName string) (*models.Team, error)
 	GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error)
@@ -30,13 +30,13 @@ type Team interface {
 type Repository struct {
 	UserRepository
 	PullRequestRepository
-	Team
+	TeamRepository
 }
 
 func NewRepository(db *pgxpool.Pool) *Repository {
 	return &Repository{
 		UserRepository:        NewUserRepository(db),
 		PullRequestRepository: NewPullRequestRepository(db),
-		Team:                  NewTeamRepository(db),
+		TeamRepository:        NewTeamRepository(db),
 	}
 }

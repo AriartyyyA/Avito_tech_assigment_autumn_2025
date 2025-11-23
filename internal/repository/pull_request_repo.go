@@ -221,6 +221,7 @@ WHERE pull_request_id = $1
 	defer rows.Close()
 
 	currentReviewers := make([]string, 0)
+
 	for rows.Next() {
 		var uID string
 		if err := rows.Scan(&uID); err != nil {

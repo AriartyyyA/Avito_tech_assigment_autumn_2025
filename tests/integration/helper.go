@@ -14,9 +14,9 @@ import (
 func setupTestHandler(mockSvc *MockService) *transport.Handler {
 
 	testService := &service.Service{
-		User:        mockSvc.User,
-		PullRequest: mockSvc.PullRequest,
-		Team:        mockSvc.Team,
+		UserService:        mockSvc.User,
+		PullRequestService: mockSvc.PullRequest,
+		TeamService:        mockSvc.Team,
 	}
 
 	return transport.NewHandler(testService)

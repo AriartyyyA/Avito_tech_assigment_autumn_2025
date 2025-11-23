@@ -9,19 +9,19 @@ import (
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 )
 
-type TeamService struct {
+type teamService struct {
 	repository *repository.Repository
 }
 
-func NewTeamService(repository *repository.Repository) Team {
-	return &TeamService{
+func NewTeamService(repository *repository.Repository) TeamService {
+	return &teamService{
 		repository: repository,
 	}
 }
 
 // CreateTeam implements TeamInterface.
-func (s *TeamService) AddTeam(ctx context.Context, team *models.Team) (*models.Team, error) {
-	createdTeam, err := s.repository.Team.AddTeam(ctx, team)
+func (s *teamService) AddTeam(ctx context.Context, team *models.Team) (*models.Team, error) {
+	createdTeam, err := s.repository.TeamRepository.AddTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +29,8 @@ func (s *TeamService) AddTeam(ctx context.Context, team *models.Team) (*models.T
 	return createdTeam, nil
 }
 
-// GetTeam implements TeamInterface.
-func (s *TeamService) GetTeam(ctx context.Context, teamName string) (*models.Team, error) {
-	team, err := s.repository.Team.GetTeam(ctx, teamName)
+func (s *teamService) GetTeam(ctx context.Context, teamName string) (*models.Team, error) {
+	team, err := s.repository.TeamRepository.GetTeam(ctx, teamName)
 	if err != nil {
 		return nil, err
 	}
@@ -39,16 +38,16 @@ func (s *TeamService) GetTeam(ctx context.Context, teamName string) (*models.Tea
 	return team, nil
 }
 
-func (s *TeamService) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
-	if _, err := s.repository.Team.GetTeam(ctx, teamName); err != nil {
+func (s *teamService) GetTeamPullRequests(ctx context.Context, teamName string) ([]models.PullRequestShort, error) {
+	if _, err := s.repository.TeamRepository.GetTeam(ctx, teamName); err != nil {
 		return nil, err
 	}
 
-	return s.repository.Team.GetTeamPullRequests(ctx, teamName)
+	return s.repository.TeamRepository.GetTeamPullRequests(ctx, teamName)
 }
 
-func (s *TeamService) DeactivateTeam(ctx context.Context, teamName string) (*models.TeamDeactivate, error) {
-	team, err := s.repository.Team.GetTeam(ctx, teamName)
+func (s *teamService) DeactivateTeam(ctx context.Context, teamName string) (*models.TeamDeactivate, error) {
+	team, err := s.repository.TeamRepository.GetTeam(ctx, teamName)
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +80,6 @@ func (s *TeamService) DeactivateTeam(ctx context.Context, teamName string) (*mod
 	}
 	result.OpenPRCount = len(prSet)
 
-	// Переназначаем ревьюверов (пока пользователи еще активны!)
-	// Используем существующий метод ReassignPullRequest, который теперь исключает
-	// всех текущих ревьюверов PR из кандидатов
 	for _, pr := range prsWithReviewers {
 		if _, err := s.repository.PullRequestRepository.ReassignPullRequest(ctx, pr.PullRequestID, pr.ReviewerID); err != nil {
 			switch {
