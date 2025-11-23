@@ -6,20 +6,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/repository"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/service"
 	"github.com/AriartyyyA/Avito_tech_assigment_autumn_2025/internal/transport"
 	"github.com/gin-gonic/gin"
 )
 
-func setupTestHandler(mockSvc *MockService) *transport.Handler {
+func setupIntegrationTestHandler(mockRepo *repository.Repository) *transport.Handler {
+	realService := service.NewService(mockRepo)
 
-	testService := &service.Service{
-		UserService:        mockSvc.User,
-		PullRequestService: mockSvc.PullRequest,
-		TeamService:        mockSvc.Team,
-	}
-
-	return transport.NewHandler(testService)
+	return transport.NewHandler(realService)
 }
 
 func makeRequest(router *gin.Engine, method, url string, body interface{}) *httptest.ResponseRecorder {

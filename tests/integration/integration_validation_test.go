@@ -7,12 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestAddTeamInvalidRequest тестирует валидацию запроса создания команды
-func TestAddTeamInvalidRequest(t *testing.T) {
+func TestIntegrationAddTeamInvalidRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockSvc := NewMockService()
-	handler := setupTestHandler(mockSvc)
+	mockRepo := NewMockRepository()
+	handler := setupIntegrationTestHandler(mockRepo)
 	router := handler.InitRoutes()
 
 	// Пустое тело запроса
@@ -23,12 +22,11 @@ func TestAddTeamInvalidRequest(t *testing.T) {
 	}
 }
 
-// TestCreatePullRequestInvalidRequest тестирует валидацию запроса создания PR
-func TestCreatePullRequestInvalidRequest(t *testing.T) {
+func TestIntegrationCreatePullRequestInvalidRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockSvc := NewMockService()
-	handler := setupTestHandler(mockSvc)
+	mockRepo := NewMockRepository()
+	handler := setupIntegrationTestHandler(mockRepo)
 	router := handler.InitRoutes()
 
 	// Запрос без обязательных полей
@@ -44,11 +42,11 @@ func TestCreatePullRequestInvalidRequest(t *testing.T) {
 	}
 }
 
-func TestGetTeamInvalidRequest(t *testing.T) {
+func TestIntegrationGetTeamInvalidRequest(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockSvc := NewMockService()
-	handler := setupTestHandler(mockSvc)
+	mockRepo := NewMockRepository()
+	handler := setupIntegrationTestHandler(mockRepo)
 	router := handler.InitRoutes()
 
 	w := makeRequest(router, "GET", "/team/get", nil)
